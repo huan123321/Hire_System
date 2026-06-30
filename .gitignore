@@ -1,0 +1,27 @@
+# Docker 构建产物
+*.jar.original
+target/
+dist/
+node_modules/
+
+# Docker volumes
+mysql_data/
+redis_data/
+backend_logs/
+
+# 日志文件
+logs/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.bak

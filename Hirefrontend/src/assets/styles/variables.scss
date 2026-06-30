@@ -1,0 +1,117 @@
+// 主题颜色
+$primary-color: #409EFF;
+$success-color: #67C23A;
+$warning-color: #E6A23C;
+$danger-color: #F56C6C;
+$info-color: #909399;
+
+// 文字颜色
+$text-primary: #303133;
+$text-regular: #606266;
+$text-secondary: #909399;
+$text-placeholder: #C0C4CC;
+
+// 背景颜色
+$bg-page: #f5f7fa;
+$bg-white: #ffffff;
+$bg-dark: #2c3e50;
+
+// 边框颜色
+$border-base: #DCDFE6;
+$border-light: #EBEEF5;
+$border-lighter: #F2F6FC;
+
+// 字体大小
+$font-size-extra-large: 20px;
+$font-size-large: 18px;
+$font-size-medium: 16px;
+$font-size-base: 14px;
+$font-size-small: 13px;
+$font-size-mini: 12px;
+
+// 间距
+$spacing-base: 15px;
+$spacing-lg: 20px;
+$spacing-xl: 30px;
+
+// 圆角
+$border-radius-base: 4px;
+$border-radius-small: 6px;
+$border-radius-large: 8px;
+$border-radius-round: 20px;
+
+// 阴影
+$box-shadow-base: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+$box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+$box-shadow-dark: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+// 容器最大宽度
+$container-max-width: 1200px;
+
+// 动画
+$transition-base: all 0.3s ease;
+$transition-fast: all 0.2s ease;
+$transition-slow: all 0.5s ease;
+
+// mixin - 弹性布局
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// mixin - 文本溢出省略号
+@mixin text-ellipsis($lines: 1) {
+  @if $lines == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// mixin - 卡片样式
+@mixin card-style {
+  background: $bg-white;
+  border-radius: $border-radius-large;
+  box-shadow: $box-shadow-light;
+  transition: $transition-base;
+  
+  &:hover {
+    box-shadow: $box-shadow-dark;
+    transform: translateY(-2px);
+  }
+}
+
+// mixin - 响应式断点
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == 'sm' {
+    @media (min-width: #{$breakpoint-sm}) { @content; }
+  } @else if $breakpoint == 'md' {
+    @media (min-width: #{$breakpoint-md}) { @content; }
+  } @else if $breakpoint == 'lg' {
+    @media (min-width: #{$breakpoint-lg}) { @content; }
+  } @else if $breakpoint == 'xl' {
+    @media (min-width: #{$breakpoint-xl}) { @content; }
+  }
+}

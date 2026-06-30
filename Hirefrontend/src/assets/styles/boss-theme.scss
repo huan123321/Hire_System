@@ -1,0 +1,26 @@
+// BOSS直聘 风格主题变量
+$boss-primary: #00C2A1;
+$boss-primary-dark: #00B593;
+$boss-primary-light: #E6F9F5;
+$boss-text: #333333;
+$boss-text-secondary: #666666;
+$boss-text-light: #999999;
+$boss-bg: #F5F6FA;
+$boss-white: #FFFFFF;
+$boss-border: #E8E8E8;
+$boss-danger: #FF5252;
+$boss-orange: #FF8A00;
+$boss-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+$boss-radius: 8px;
+$boss-font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+
+// Element UI 主题覆盖
+$--color-primary: $boss-primary;
+$--color-success: #67C23A;
+$--color-warning: #E6A23C;
+$--color-danger: $boss-danger;
+
+:export {
+  bossPrimary: $boss-primary;
+  bossText: $boss-text;
+}

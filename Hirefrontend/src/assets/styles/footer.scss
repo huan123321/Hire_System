@@ -1,0 +1,203 @@
+// 统一页脚样式
+// 适用于所有页面的页脚美化
+
+.footer {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 50px 0 20px;
+  margin-top: 60px;
+  position: relative;
+  overflow: hidden;
+
+  // 添加波浪装饰效果
+  &::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120'%3E%3Cpath fill='%23ffffff' fill-opacity='0.1' d='M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+    background-size: cover;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+    margin-bottom: 40px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .footer-left {
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        font-size: 22px;
+        font-weight: bold;
+
+        i {
+          font-size: 28px;
+        }
+      }
+
+      .footer-desc {
+        font-size: 14px;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 20px;
+      }
+
+      .footer-social {
+        display: flex;
+        gap: 12px;
+
+        .social-icon {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.15);
+          border-radius: 50%;
+          color: #fff;
+          font-size: 18px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          text-decoration: none;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          }
+        }
+      }
+    }
+
+    .footer-right {
+      .footer-links {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+
+        @media (max-width: 768px) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 480px) {
+          grid-template-columns: 1fr;
+        }
+
+        .footer-section {
+          h4 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #fff;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 10px;
+
+            &::after {
+              content: '';
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              width: 30px;
+              height: 2px;
+              background: rgba(255, 255, 255, 0.5);
+              border-radius: 1px;
+            }
+          }
+
+          ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+              margin-bottom: 10px;
+
+              a {
+                color: rgba(255, 255, 255, 0.85);
+                text-decoration: none;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                display: inline-block;
+
+                &:hover {
+                  color: #fff;
+                  transform: translateX(5px);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .copyright {
+      p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 14px;
+        margin: 0;
+
+        i {
+          margin-right: 5px;
+        }
+      }
+    }
+
+    .tech-info {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .separator {
+        opacity: 0.5;
+      }
+
+      i.fa-heart {
+        color: #ff6b6b;
+        animation: heartbeat 1.5s ease-in-out infinite;
+      }
+    }
+  }
+}
+
+// 心跳动画
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}

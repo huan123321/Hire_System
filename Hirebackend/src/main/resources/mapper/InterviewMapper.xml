@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Hiresys.mapper.InterviewMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="Hiresys.entity.Interview">
+        <id column="id" property="id"/>
+        <result column="application_id" property="applicationId"/>
+        <result column="job_id" property="jobId"/>
+        <result column="user_id" property="userId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="interview_time" property="interviewTime"/>
+        <result column="interview_type" property="interviewType"/>
+        <result column="location" property="location"/>
+        <result column="meeting_url" property="meetingUrl"/>
+        <result column="interviewer" property="interviewer"/>
+        <result column="interviewer_phone" property="interviewerPhone"/>
+        <result column="status" property="status"/>
+        <result column="feedback" property="feedback"/>
+        <result column="rating" property="rating"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <!-- 非数据库字段 -->
+        <result column="job_title" property="jobTitle"/>
+        <result column="company_name" property="companyName"/>
+        <result column="candidate_name" property="candidateName"/>
+        <result column="candidate_username" property="candidateUsername"/>
+    </resultMap>
+
+    <!-- 查询用户的面试列表（包含职位和公司信息） -->
+    <select id="selectInterviewsWithDetails" resultMap="BaseResultMap">
+        SELECT 
+            i.*,
+            j.title AS job_title,
+            c.name AS company_name,
+            u.real_name AS candidate_name,
+            u.username AS candidate_username
+        FROM interview i
+        LEFT JOIN job j ON i.job_id = j.id
+        LEFT JOIN company c ON i.company_id = c.id
+        LEFT JOIN user u ON i.user_id = u.id
+        WHERE i.user_id = #{userId}
+        ORDER BY i.interview_time DESC
+    </select>
+
+    <!-- 查询公司的面试列表（HR视角） -->
+    <select id="selectCompanyInterviews" resultMap="BaseResultMap">
+        SELECT 
+            i.*,
+            j.title AS job_title,
+            c.name AS company_name,
+            u.real_name AS candidate_name,
+            u.username AS candidate_username
+        FROM interview i
+        LEFT JOIN job j ON i.job_id = j.id
+        LEFT JOIN company c ON i.company_id = c.id
+        LEFT JOIN user u ON i.user_id = u.id
+        WHERE i.company_id = #{companyId}
+        ORDER BY i.interview_time DESC
+    </select>
+
+    <!-- 查询职位的面试列表 -->
+    <select id="selectJobInterviews" resultMap="BaseResultMap">
+        SELECT 
+            i.*,
+            j.title AS job_title,
+            c.name AS company_name,
+            u.real_name AS candidate_name,
+            u.username AS candidate_username
+        FROM interview i
+        LEFT JOIN job j ON i.job_id = j.id
+        LEFT JOIN company c ON i.company_id = c.id
+        LEFT JOIN user u ON i.user_id = u.id
+        WHERE i.job_id = #{jobId}
+        ORDER BY i.interview_time DESC
+    </select>
+
+</mapper>
