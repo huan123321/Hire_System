@@ -104,6 +104,10 @@
                 <i class="fas fa-paper-plane"></i>
                 <span>职位申请</span>
               </el-menu-item>
+              <el-menu-item index="favorites">
+                <i class="fas fa-star"></i>
+                <span>我的收藏</span>
+              </el-menu-item>
               <el-menu-item index="followed">
                 <i class="fas fa-heart"></i>
                 <span>我的关注</span>
@@ -226,7 +230,7 @@
                   <h3>教育背景</h3>
                   <div class="resume-item" v-for="(edu, index) in resume.education" :key="index">
                     <div class="resume-item-header">
-                      <span class="time">{{ edu.startDate }} - {{ edu.endDate }}</span>
+                      <span class="time">{{ formatYearMonth(edu.startDate) }} - {{ formatYearMonth(edu.endDate) }}</span>
                       <span class="title">{{ edu.school }}</span>
                       <span class="subtitle">{{ edu.major }} | {{ edu.degree }}</span>
                     </div>
@@ -239,7 +243,7 @@
                   <h3>工作经历</h3>
                   <div class="resume-item" v-for="(exp, index) in resume.experience" :key="index">
                     <div class="resume-item-header">
-                      <span class="time">{{ exp.startDate }} - {{ exp.endDate }}</span>
+                      <span class="time">{{ formatYearMonth(exp.startDate) }} - {{ formatYearMonth(exp.endDate) }}</span>
                       <span class="title">{{ exp.company }}</span>
                       <span class="subtitle">{{ exp.position }}</span>
                     </div>
@@ -300,6 +304,27 @@
             </div>
           </div>
           
+          <!-- 我的收藏 -->
+          <div class="favorites-section" v-if="activeNav === 'favorites' && userRole === 'jobSeeker'">
+            <div class="section-title">我的收藏</div>
+            <el-table :data="favoriteJobs" style="width: 100%" v-loading="favoritesLoading">
+              <el-table-column prop="jobTitle" label="职位名称" width="200"></el-table-column>
+              <el-table-column prop="companyName" label="公司名称" width="180"></el-table-column>
+              <el-table-column prop="salary" label="薪资" width="120"></el-table-column>
+              <el-table-column prop="createTime" label="收藏时间" width="180"></el-table-column>
+              <el-table-column label="操作" width="200" fixed="right">
+                <template #default="{row}">
+                  <el-button size="mini" type="primary" @click="viewJobDetail(row.jobId)">查看职位</el-button>
+                  <el-button size="mini" type="danger" @click="unfavoriteJob(row.jobId)">取消收藏</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div v-if="favoriteJobs.length === 0 && !favoritesLoading" class="empty-data">
+              <i class="el-icon-star-off"></i>
+              <p>暂无收藏的职位</p>
+            </div>
+          </div>
+
           <!-- 我的关注 -->
           <div class="followed-section" v-if="activeNav === 'followed' && userRole === 'jobSeeker'">
             <div class="section-title">我的关注</div>
@@ -518,16 +543,6 @@
             </el-table>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- 页脚 -->
-    <div class="footer">
-      <div class="container">
-        <div class="footer-links">
-
-        </div>
-
       </div>
     </div>
 
@@ -782,6 +797,8 @@ export default {
       },
       applications: [],
       applicationsLoading: false,
+      favoriteJobs: [],
+      favoritesLoading: false,
       followedCompanies: [],
       followedLoading: false,
       interviews: [],
@@ -982,6 +999,13 @@ export default {
       const seconds = String(date.getSeconds()).padStart(2, '0');
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
+    formatYearMonth(date) {
+      if (!date) return '';
+      if (typeof date === 'string') date = new Date(date);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${year}-${month}`;
+    },
 
     loadUserInfo() {
       // 从sessionStorage获取当前用户信息
@@ -1043,6 +1067,7 @@ export default {
               // 如果是求职者，加载职位申请记录
               if (this.userRole === 'jobSeeker') {
                 this.loadJobApplications();
+                this.loadFavoriteJobs();
                 this.loadFollowedCompanies();
               }
               
@@ -1098,6 +1123,76 @@ export default {
             console.error('加载职位申请记录失败:', error);
           });
       }
+    },
+
+    // 加载收藏的职位列表
+    loadFavoriteJobs() {
+      this.favoritesLoading = true;
+      if (this.userInfo && this.userInfo.id) {
+        this.$axios.get(`${this.$apiBaseUrl}/favorite/list/${this.userInfo.id}`)
+          .then(response => {
+            this.favoritesLoading = false;
+            if (response.data && response.data.code === 200 && response.data.data) {
+              this.favoriteJobs = response.data.data;
+              this.jobStats.favorite = this.favoriteJobs.length;
+            } else {
+              this.favoriteJobs = [];
+              this.jobStats.favorite = 0;
+              console.error('加载收藏职位列表失败:', response.data ? response.data.msg : '未知错误');
+            }
+          })
+          .catch(error => {
+            this.favoritesLoading = false;
+            this.favoriteJobs = [];
+            this.jobStats.favorite = 0;
+            console.error('加载收藏职位列表失败:', error);
+          });
+      } else {
+        this.favoritesLoading = false;
+        this.favoriteJobs = [];
+        this.jobStats.favorite = 0;
+      }
+    },
+
+    // 加载求职者统计信息
+    loadJobStats() {
+      if (this.userInfo && this.userInfo.id) {
+        this.loadFavoriteJobs();
+      }
+    },
+
+    // 取消收藏职位
+    unfavoriteJob(jobId) {
+      this.$confirm('确定要取消收藏该职位吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios.post(`${this.$apiBaseUrl}/favorite/remove`, {
+          userId: this.userInfo.id,
+          jobId: jobId
+        }).then(response => {
+          if (response.data && response.data.code === 200) {
+            this.$message({
+              type: 'success',
+              message: '已取消收藏'
+            });
+            this.loadFavoriteJobs();
+            this.loadJobStats();
+          } else {
+            this.$message({
+              type: 'error',
+              message: '取消收藏失败：' + (response.data ? response.data.msg : '未知错误')
+            });
+          }
+        }).catch(error => {
+          console.error('取消收藏失败:', error);
+          this.$message({
+            type: 'error',
+            message: '取消收藏失败'
+          });
+        });
+      }).catch(() => {});
     },
 
     // 加载关注的公司列表
@@ -1203,6 +1298,11 @@ export default {
           this.candidateFilter.job = this.jobList[0].id;
           this.loadCandidatesForJob(this.jobList[0].id);
         }
+      }
+      
+      // 如果切换到我的收藏页面，重新加载收藏的职位列表
+      if (index === 'favorites' && this.userRole === 'jobSeeker') {
+        this.loadFavoriteJobs();
       }
       
       // 如果切换到我的关注页面，重新加载关注的公司列表
@@ -2216,16 +2316,6 @@ export default {
   flex-direction: column;
 }
 
-.header {
-  background: linear-gradient(135deg, #3498db, #2c3e50);
-  color: white;
-  padding: 15px 0;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
 .profile-overview {
   background: white;
   border-radius: 4px;
@@ -2439,24 +2529,6 @@ export default {
 .item-header i {
   margin-right: 10px;
   color: #3498db;
-}
-
-
-
-.footer {
-  text-align: center;
-  padding: 40px 0;
-  margin-top: auto;
-  color: #909399;
-  border-top: 1px solid #ebeef5;
-  background-color: white;
-}
-
-.footer-links {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
 }
 
 

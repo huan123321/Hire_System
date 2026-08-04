@@ -2,19 +2,13 @@
   <div class="simple-footer">
     <div class="container">
       <div class="footer-content">
-        <!-- 左侧品牌信息 -->
         <div class="footer-left">
-          <h3 class="footer-title">网上招聘系统</h3>
-          <p class="footer-desc">连接全球优秀企业与人才，让招聘更简单，让求职更高效</p>
-          <div class="social-icons">
-            <div class="social-icon"></div>
-            <div class="social-icon"></div>
-            <div class="social-icon"></div>
-            <div class="social-icon"></div>
-          </div>
+          <h3 class="footer-title">
+            <span class="brand-main">Hire</span><span class="brand-dot">•</span>
+          </h3>
+          <p class="footer-desc">找工作，直接谈，找得快</p>
         </div>
 
-        <!-- 右侧导航链接 -->
         <div class="footer-right">
           <div class="footer-nav">
             <h4 class="nav-title">快速导航</h4>
@@ -48,13 +42,12 @@
         </div>
       </div>
 
-      <!-- 底部版权 -->
       <div class="footer-bottom">
         <div class="copyright">
-          2024-2025 网上招聘系统. All rights reserved.
+          © 2026 Hire System 网上招聘系统. All rights reserved.
         </div>
         <div class="tech-info">
-          Powered by Vue.js & Spring Boot · Made with
+          Powered by Vue.js & Spring Boot
         </div>
       </div>
     </div>
@@ -65,36 +58,22 @@
 export default {
   name: 'SimpleFooter',
   methods: {
-    goToPosition() {
-      this.$router.push('/Position');
-    },
-    goToCompany() {
-      this.$router.push('/ComPany');
-    },
-    goToMessageCenter() {
-      this.$router.push({ name: 'MessageCenter' });
-    },
-    goToPerson() {
-      this.$router.push('/PerSon');
-    },
-    goToResume() {
-      this.$router.push('/EditResume');
-    },
-    goToApplications() {
-      this.$router.push({ path: '/PerSon', query: { tab: 'applications' } });
-    },
-    goToInterviews() {
-      this.$router.push({ path: '/PerSon', query: { tab: 'interviews' } });
-    }
+    goToPosition() { this.$router.push('/Position'); },
+    goToCompany() { this.$router.push('/ComPany'); },
+    goToMessageCenter() { this.$router.push({ name: 'MessageCenter' }); },
+    goToPerson() { this.$router.push('/PerSon'); },
+    goToResume() { this.$router.push('/EditResume'); },
+    goToApplications() { this.$router.push({ path: '/PerSon', query: { tab: 'applications' } }); },
+    goToInterviews() { this.$router.push({ path: '/PerSon', query: { tab: 'interviews' } }); }
   }
 }
 </script>
 
 <style scoped>
 .simple-footer {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  padding: 60px 0 30px;
+  background: #2C3238;
+  color: #AEB4BE;
+  padding: 40px 0 0;
   margin-top: 60px;
 }
 
@@ -108,44 +87,26 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 40px;
+  padding-bottom: 30px;
 }
 
 .footer-left {
   flex: 1;
-  max-width: 400px;
+  max-width: 300px;
 }
 
 .footer-title {
   font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 16px;
+  font-weight: 800;
+  margin-bottom: 12px;
 }
+.brand-main { color: #00C2A1; }
+.brand-dot { color: #FF8A00; }
 
 .footer-desc {
-  font-size: 14px;
+  font-size: 13px;
+  color: #AEB4BE;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 24px;
-}
-
-.social-icons {
-  display: flex;
-  gap: 12px;
-}
-
-.social-icon {
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.social-icon:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
 }
 
 .footer-right {
@@ -155,26 +116,13 @@ export default {
   justify-content: flex-end;
 }
 
-.footer-nav {
-  min-width: 120px;
-}
+.footer-nav { min-width: 120px; }
 
 .nav-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 20px;
-  position: relative;
-  padding-bottom: 10px;
-}
-
-.nav-title::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 30px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.5);
+  color: #fff;
+  margin-bottom: 16px;
 }
 
 .nav-list {
@@ -183,51 +131,31 @@ export default {
   margin: 0;
 }
 
-.nav-list li {
-  margin-bottom: 12px;
-}
+.nav-list li { margin-bottom: 10px; }
 
 .nav-list a {
-  color: rgba(255, 255, 255, 0.85);
+  color: #AEB4BE;
   text-decoration: none;
-  font-size: 14px;
-  transition: all 0.3s ease;
+  font-size: 13px;
+  transition: color 0.2s;
 }
 
-.nav-list a:hover {
-  color: #fff;
-  padding-left: 5px;
-}
+.nav-list a:hover { color: #00C2A1; }
 
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  color: #6B7280;
 }
 
 @media (max-width: 768px) {
-  .footer-content {
-    flex-direction: column;
-    gap: 40px;
-  }
-
-  .footer-left {
-    max-width: 100%;
-  }
-
-  .footer-right {
-    flex-direction: column;
-    gap: 30px;
-  }
-
-  .footer-bottom {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
+  .footer-content { flex-direction: column; gap: 30px; }
+  .footer-left { max-width: 100%; }
+  .footer-right { flex-direction: column; gap: 24px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
 }
 </style>

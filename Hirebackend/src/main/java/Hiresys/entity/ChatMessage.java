@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 聊天消息�?
+ * 聊天消息�?
  * </p>
  *
  * @author author

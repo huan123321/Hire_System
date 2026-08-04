@@ -34,7 +34,7 @@ public class User implements Serializable {
      */
     private Integer id;
     /**
-     * 用户�?
+     * 用户�?
      */
     private String username;
 
@@ -49,7 +49,7 @@ public class User implements Serializable {
     private String email;
 
     /**
-     * 手机�?
+     * 手机�?
      */
     private String phone;
 
@@ -69,7 +69,7 @@ public class User implements Serializable {
     private String avatar;
 
     /**
-     * 性别�?-未知�?-男，2-�?
+     * 性别�?-未知�?-男，2-�?
      */
     private Boolean gender;
 
@@ -79,12 +79,12 @@ public class User implements Serializable {
     private LocalDate birthday;
 
     /**
-     * 状态：0-禁用�?-正常
+     * 状态：0-禁用�?-正常
      */
     private Boolean status;
 
     /**
-     * 最后登录时�?
+     * 最后登录时�?
      */
     private LocalDateTime lastLoginTime;
 
@@ -104,17 +104,17 @@ public class User implements Serializable {
     private LocalDateTime updateTime;
 
     /**
-     * 删除标志�?-未删除，1-已删�?
+     * 删除标志�?-未删除，1-已删�?
      */
     private Boolean isDeleted;
     
     /**
-     * 用户角色�?-求职者，1-HR�?-管理�?
+     * 用户角色�?-求职者，1-HR�?-管理�?
      */
     private Integer role;
     
     /**
-     * 个人简�?
+     * 个人简�?
      */
     private String bio;
     
@@ -124,12 +124,12 @@ public class User implements Serializable {
     private String location;
     
     /**
-     * 所属公�?ID (HR 用户专用)
+     * 所属公�?ID (HR 用户专用)
      */
     private Long companyId;
     
     /**
-     * 所属公司名�?(HR 用户专用，不存储到数据库)
+     * 所属公司名�?(HR 用户专用，不存储到数据库)
      */
     @com.baomidou.mybatisplus.annotation.TableField(exist = false)
     private String companyName;

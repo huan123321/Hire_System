@@ -543,33 +543,6 @@ export default {
   background: #f5f7fa;
 }
 
-.header {
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.header .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: bold;
-  color: #409eff;
-}
-
 .main-content {
   max-width: 1200px;
   margin: 0 auto;

@@ -1,19 +1,18 @@
 <template>
-  <div class="app-wrapper">
+  <div class="company-detail-container">
+    <!-- 顶部导航 -->
     <AppHeader />
-<div class="company-detail-container">
-    <!-- �������� -->
 
-    <!-- ��Ҫ���� -->
+    <!-- 主要内容 -->
     <div class="main-content">
       <div class="container">
-        <!-- ���ذ�ť -->
+        <!-- 返回按钮 -->
         <div class="back-btn">
-          <el-button icon="el-icon-arrow-left" @click="goBack">���ع�˾�б�</el-button>
+          <el-button icon="el-icon-arrow-left" @click="goBack">返回公司列表</el-button>
         </div>
 
         <div v-loading="loading" class="company-detail">
-          <!-- ��˾��Ϣ��Ƭ -->
+          <!-- 公司信息卡片 -->
           <div class="company-info-card">
             <div class="company-header">
               <div class="company-logo">
@@ -30,7 +29,7 @@
                 <div class="company-stats">
                   <span class="stat-item">
                     <i class="fas fa-eye"></i>
-                    {{ viewCount }} �����
+                    {{ viewCount }} 次浏览
                   </span>
                 </div>
               </div>
@@ -40,7 +39,7 @@
               <div class="detail-item">
                 <div class="label">
                   <i class="fas fa-map-marker-alt"></i>
-                  <span>��˾��ַ</span>
+                  <span>公司地址</span>
                 </div>
                 <div class="value">{{ company.address }}</div>
               </div>
@@ -48,7 +47,7 @@
               <div class="detail-item">
                 <div class="label">
                   <i class="fas fa-phone"></i>
-                  <span>��ϵ�绰</span>
+                  <span>联系电话</span>
                 </div>
                 <div class="value">{{ company.phone }}</div>
               </div>
@@ -56,7 +55,7 @@
               <div class="detail-item">
                 <div class="label">
                   <i class="fas fa-users"></i>
-                  <span>��˾��ģ</span>
+                  <span>公司规模</span>
                 </div>
                 <div class="value">{{ company.scale }}</div>
               </div>
@@ -64,7 +63,7 @@
               <div class="detail-item">
                 <div class="label">
                   <i class="fas fa-industry"></i>
-                  <span>������ҵ</span>
+                  <span>所属行业</span>
                 </div>
                 <div class="value">{{ company.industry }}</div>
               </div>
@@ -73,26 +72,26 @@
             <div class="company-description">
               <h3 class="section-title">
                 <i class="fas fa-align-left"></i>
-                ��˾���
+                公司简介
               </h3>
-              <p class="description-content">{{ company.description || '���޹�˾���' }}</p>
+              <p class="description-content">{{ company.description || '暂无公司简介' }}</p>
             </div>
 
             <div class="company-actions">
-              <el-button type="primary" size="large" @click="viewJobs">�鿴����ְλ</el-button>
-              <el-button type="success" size="large" icon="el-icon-chat-dot-round" @click="openChat">������ͨ</el-button>
+              <el-button type="primary" size="large" @click="viewJobs">查看在招职位</el-button>
+              <el-button type="success" size="large" icon="el-icon-chat-dot-round" @click="openChat">立即沟通</el-button>
               <el-button size="large" @click="followCompany">
                 <i class="fas fa-heart" :class="{active: isFollowed}"></i>
-                {{ isFollowed ? '�ѹ�ע' : '��ע��˾' }}
+                {{ isFollowed ? '已关注' : '关注公司' }}
               </el-button>
             </div>
           </div>
 
-          <!-- ����ְλ -->
+          <!-- 在招职位 -->
           <div class="jobs-section" v-if="jobs.length > 0">
             <h3 class="section-title">
               <i class="fas fa-briefcase"></i>
-              ����ְλ
+              在招职位
             </h3>
             <div class="job-list">
               <div class="job-card" v-for="job in jobs" :key="job.id">
@@ -105,7 +104,7 @@
                   <span><i class="fas fa-graduation-cap"></i> {{ job.education }}</span>
                   <span><i class="fas fa-clock"></i> {{ job.experience }}</span>
                 </div>
-                <el-button type="text" @click="applyJob(job.id)">��������</el-button>
+                <el-button type="text" @click="applyJob(job.id)">立即申请</el-button>
               </div>
             </div>
           </div>
@@ -113,9 +112,9 @@
       </div>
     </div>
 
-    <!-- ����Ի��� -->
+    <!-- 聊天对话框 -->
     <el-dialog 
-      title="��HR��ͨ" 
+      title="与HR沟通" 
       :visible.sync="chatVisible"
       width="650px"
       :close-on-click-modal="false">
@@ -128,20 +127,17 @@
       />
     </el-dialog>
   </div>
-    <SimpleFooter />
-  </div>
-
-
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue'
 import ChatBox from '@/components/ChatBox.vue';
 import chatWebSocket from '@/utils/websocket';
 
 export default {
   name: 'CompanyDetail',
   components: {
-    
+    AppHeader,
     ChatBox
   },
   data() {
@@ -153,38 +149,44 @@ export default {
       isFollowed: false,
       currentUser: null,
       chatVisible: false,
-      viewCount: 0 // ��˾�����
+      viewCount: 0 // 公司浏览量
     }
   },
   created() {
-    // ��ȡ��˾ ID
+    // 获取公司 ID
     this.companyId = this.$route.params.id;
-    // ��ȡ��ǰ�û�
+    // 校验 ID 是否有效，无效则返回公司列表页
+    if (!this.companyId || this.companyId === 'undefined' || isNaN(Number(this.companyId))) {
+      this.$message.error('公司ID无效，请从公司列表进入');
+      this.$router.replace('/ComPany');
+      return;
+    }
+    // 获取当前用户
     const userStr = sessionStorage.getItem('user');
     if (userStr) {
       this.currentUser = JSON.parse(userStr);
       
-      // ����WebSocket
+      // 连接WebSocket
       const userType = 'user';
       chatWebSocket.connect(this.currentUser.id, userType, {
         companyId: this.currentUser.companyId
       });
     }
-    // ���ع�˾����
+    // 加载公司详情
     this.loadCompanyDetail();
-    // ���ع�˾ְλ
+    // 加载公司职位
     this.loadCompanyJobs();
-    // ����Ƿ��ѹ�ע
+    // 检查是否已关注
     if (this.currentUser) {
       this.checkFollowStatus();
     }
-    // ��¼���
+    // 记录浏览
     this.recordView();
-    // ���������
+    // 加载浏览量
     this.loadViewCount();
   },
   beforeDestroy() {
-    // �Ͽ�WebSocket����
+    // 断开WebSocket连接
     chatWebSocket.disconnect();
   },
   methods: {
@@ -196,11 +198,11 @@ export default {
         if (response.data.code === 200) {
           this.company = response.data.data;
         } else {
-          this.$message.error(response.data.msg || '���ع�˾����ʧ��');
+          this.$message.error(response.data.msg || '加载公司详情失败');
         }
       } catch (error) {
-        console.error('���ع�˾����ʧ��:', error);
-        this.$message.error('���ع�˾����ʧ��');
+        console.error('加载公司详情失败:', error);
+        this.$message.error('加载公司详情失败');
       } finally {
         this.loading = false;
       }
@@ -214,7 +216,7 @@ export default {
           this.jobs = response.data.data || [];
         }
       } catch (error) {
-        console.error('���ع�˾ְλʧ��:', error);
+        console.error('加载公司职位失败:', error);
       }
     },
 
@@ -226,7 +228,7 @@ export default {
       const userStr = sessionStorage.getItem('user')
       const user = userStr ? JSON.parse(userStr) : null
 
-      if (user && user.role === 1) {  // HR��ɫ
+      if (user && user.role === 1) {  // HR角色
         this.$router.push('/HrHomePage')
       } else {
         this.$router.push('/HomePage')
@@ -255,7 +257,7 @@ export default {
     },
 
     viewJobs() {
-      // ������ְλ�б�
+      // 滚动到职位列表
       const jobsSection = document.querySelector('.jobs-section');
       if (jobsSection) {
         jobsSection.scrollIntoView({ behavior: 'smooth' });
@@ -263,18 +265,18 @@ export default {
     },
 
     /**
-     * �����촰��
+     * 打开聊天窗口
      */
     openChat() {
       if (!this.currentUser) {
-        this.$message.warning('���ȵ�¼');
+        this.$message.warning('请先登录');
         this.$router.push('/');
         return;
       }
       
-      // ���WebSocket����״̬
+      // 检查WebSocket连接状态
       if (!chatWebSocket.isConnected()) {
-        this.$message.warning('������������������Ժ�...');
+        this.$message.warning('正在连接聊天服务，请稍后...');
         return;
       }
       
@@ -283,19 +285,19 @@ export default {
 
     followCompany() {
       if (!this.currentUser) {
-        this.$message.warning('���ȵ�¼');
+        this.$message.warning('请先登录');
         this.$router.push('/');
         return;
       }
 
       const loading = this.$loading({
         lock: true,
-        text: this.isFollowed ? 'ȡ����ע��...' : '��ע��...',
+        text: this.isFollowed ? '取消关注中...' : '关注中...',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       });
 
-      // ���ú�� API ��ע/ȡ����ע
+      // 调用后端 API 关注/取消关注
       const url = this.isFollowed 
         ? `${this.$apiBaseUrl}/user-follow-company/unfollow`
         : `${this.$apiBaseUrl}/user-follow-company/follow`;
@@ -310,30 +312,30 @@ export default {
         loading.close();
         if (response.data.code === 200) {
           this.isFollowed = !this.isFollowed;
-          const message = this.isFollowed ? '��ע�ɹ�' : '��ȡ����ע';
+          const message = this.isFollowed ? '关注成功' : '已取消关注';
           this.$message.success(message);
-          // ����ǹ�ע��������ʾ�û����Ե��������Ĳ鿴
+          // 如果是关注操作，提示用户可以到个人中心查看
           if (this.isFollowed) {
             setTimeout(() => {
               this.$message({
-                message: '�����Ե��������Ĳ鿴�ѹ�ע�Ĺ�˾',
+                message: '您可以到个人中心查看已关注的公司',
                 type: 'info',
                 duration: 3000
               });
             }, 1000);
           }
         } else {
-          this.$message.error(response.data.msg || '����ʧ��');
+          this.$message.error(response.data.msg || '操作失败');
         }
       })
       .catch(error => {
         loading.close();
-        console.error('��ע��˾ʧ��:', error);
-        this.$message.error('����ʧ�ܣ����Ժ�����');
+        console.error('关注公司失败:', error);
+        this.$message.error('操作失败，请稍后重试');
       });
     },
 
-    // ����ע״̬
+    // 检查关注状态
     async checkFollowStatus() {
       if (!this.currentUser || !this.companyId) {
         return;
@@ -351,17 +353,17 @@ export default {
           this.isFollowed = response.data.data;
         }
       } catch (error) {
-        console.error('����ע״̬ʧ��:', error);
+        console.error('检查关注状态失败:', error);
       }
     },
     
     /**
-     * ��¼���
+     * 记录浏览
      */
     async recordView() {
       try {
         if (this.companyId) {
-          // ��ȡ��ǰ�û� ID������ѵ�¼��
+          // 获取当前用户 ID（如果已登录）
           const userId = this.currentUser ? this.currentUser.id : null;
           
           await this.$axios.post(
@@ -373,16 +375,16 @@ export default {
               }
             }
           );
-          console.log('��˾�����¼�ѱ���');
+          console.log('公司浏览记录已保存');
         }
       } catch (error) {
-        // ��¼ʧ�ܲ�Ӱ��ҳ����ʾ
-        console.error('��¼���ʧ��:', error);
+        // 记录失败不影响页面显示
+        console.error('记录浏览失败:', error);
       }
     },
     
     /**
-     * ���������
+     * 加载浏览量
      */
     async loadViewCount() {
       try {
@@ -395,36 +397,36 @@ export default {
           }
         }
       } catch (error) {
-        console.error('���������ʧ��:', error);
+        console.error('加载浏览量失败:', error);
       }
     },
     
     /**
-     * ����ְλ
+     * 申请职位
      */
     async applyJob(jobId) {
-      // ����Ƿ��¼
+      // 检查是否登录
       if (!this.currentUser) {
-        this.$message.warning('���ȵ�¼');
+        this.$message.warning('请先登录');
         this.$router.push('/');
         return;
       }
       
-      // ȷ������
-      this.$confirm('ȷ��Ҫ�������ְλ��', '��ʾ', {
-        confirmButtonText: 'ȷ��',
-        cancelButtonText: 'ȡ��',
+      // 确认申请
+      this.$confirm('确定要申请这个职位吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(async () => {
         try {
           const loading = this.$loading({
             lock: true,
-            text: '�����ύ����...',
+            text: '正在提交申请...',
             spinner: 'el-icon-loading',
             background: 'rgba(0, 0, 0, 0.7)'
           });
           
-          // ���ú�� API ����ְλ
+          // 调用后端 API 申请职位
           const response = await this.$axios.post(
             this.$apiBaseUrl + '/job-application/apply',
             null,
@@ -439,21 +441,21 @@ export default {
           loading.close();
           
           if (response.data.code === 200) {
-            this.$message.success('����ɹ���HR ������鿴���ļ���');
+            this.$message.success('申请成功！HR 将尽快查看您的简历');
           } else {
-            this.$message.error(response.data.msg || '����ʧ�ܣ����Ժ�����');
+            this.$message.error(response.data.msg || '申请失败，请稍后重试');
           }
         } catch (error) {
-          console.error('����ְλʧ��:', error);
-          this.$message.error('����ʧ�ܣ����Ժ�����');
+          console.error('申请职位失败:', error);
+          this.$message.error('申请失败，请稍后重试');
         }
       }).catch(() => {
-        this.$message.info('��ȡ������');
+        this.$message.info('已取消申请');
       });
     },
 
     /**
-     * ��ת����Ϣ����
+     * 跳转到消息中心
      */
     goToMessageCenter() {
       this.$router.push({
@@ -468,46 +470,6 @@ export default {
 .company-detail-container {
   min-height: 100vh;
   background-color: #f5f5f5;
-}
-
-.header {
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 70px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 24px;
-  font-weight: bold;
-  color: #3498db;
-}
-
-.logo i {
-  font-size: 28px;
-}
-
-.nav-menu {
-  display: flex;
-  gap: 15px;
-  align-items: center;
 }
 
 .main-content {
@@ -718,22 +680,5 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
-}
-
-.footer {
-  background: #2c3e50;
-  color: white;
-  padding: 30px 0;
-  margin-top: 50px;
-}
-
-.footer .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.footer-links {
-  text-align: center;
 }
 </style>

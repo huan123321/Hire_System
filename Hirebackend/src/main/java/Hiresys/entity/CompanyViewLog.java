@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 公司浏览记录�?
+ * 公司浏览记录�?
  * </p>
  *
  * @author author

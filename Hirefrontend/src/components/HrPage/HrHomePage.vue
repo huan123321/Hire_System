@@ -451,33 +451,6 @@ export default {
   padding: 0 15px;
 }
 
-.header {
-  background: #00C2A1;
-  color: white;
-  padding: 15px 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.logo i {
-  margin-right: 10px;
-  font-size: 28px;
-}
-
 .banner {
   background: #00C2A1;
   color: white;
@@ -846,19 +819,6 @@ export default {
   color: #909399;
 }
 
-.footer {
-  text-align: center;
-  padding: 30px 0;
-  margin-top: 40px;
-  color: #909399;
-  border-top: 2px solid rgba(102, 126, 234, 0.1);
-  background: white;
-}
-
-.footer-content {
-  font-size: 14px;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -887,18 +847,6 @@ export default {
 @media (max-width: 768px) {
   .stats-cards {
     grid-template-columns: 1fr;
-  }
-  
-  .header-content {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .nav-menu {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
   }
 }
 </style>

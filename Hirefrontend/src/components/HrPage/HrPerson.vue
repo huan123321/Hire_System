@@ -462,14 +462,6 @@
       </span>
     </el-dialog>
 
-    <!-- 页脚 -->
-    <div class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <p>© 2026 网上招聘系统 - HR 个人中心。保留所有权利.</p>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -1392,13 +1384,5 @@ export default {
 .empty-data i {
   font-size: 48px;
   margin-bottom: 15px;
-}
-
-.footer {
-  text-align: center;
-  padding: 30px 0;
-  margin-top: 40px;
-  color: #909399;
-  background: white;
 }
 </style>

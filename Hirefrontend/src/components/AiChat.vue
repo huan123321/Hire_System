@@ -1,5 +1,7 @@
 <template>
   <div class="ai-chat-page">
+    <AppHeader />
+
     <div class="ai-chat-box">
       <div class="chat-header">
         <div class="header-info">
@@ -117,8 +119,11 @@
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue'
+
 export default {
   name: 'AiChat',
+  components: { AppHeader },
   data() {
     return {
       messages: [],
@@ -269,8 +274,8 @@ export default {
 </script>
 
 <style scoped>
-.ai-chat-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; padding: 20px; }
-.ai-chat-box { display: flex; flex-direction: column; width: 750px; max-width: 100%; height: 85vh; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+.ai-chat-page { min-height: 100vh; background: #f0f2f5; padding: 20px; display: flex; flex-direction: column; }
+.ai-chat-box { display: flex; flex-direction: column; width: 750px; max-width: 100%; height: 78vh; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin: 0 auto; }
 .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid #e4e7ed; background: linear-gradient(135deg, #409EFF, #36cfc9); color: white; border-radius: 12px 12px 0 0; }
 .header-info { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: bold; }
 .header-info i { font-size: 22px; }

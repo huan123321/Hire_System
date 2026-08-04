@@ -1,19 +1,7 @@
 <template>
   <div class="resume-detail">
     <!-- 顶部导航 -->
-    <div class="header">
-      <div class="container">
-        <div class="header-content">
-          <div class="logo">
-            <i class="fas fa-arrow-left" @click="goBack"></i>
-            <span>简历详情</span>
-          </div>
-          <div class="nav-menu">
-            <el-button type="primary" round @click="goBack">返回</el-button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <AppHeader />
 
     <div class="container">
       <div class="main-content" v-loading="loading">
@@ -114,8 +102,11 @@
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue'
+
 export default {
   name: 'ResumeDetail',
+  components: { AppHeader },
   data() {
     return {
       loading: false,
@@ -188,13 +179,6 @@ export default {
         return date.split('T')[0];
       }
       return date;
-    },
-
-    /**
-     * 返回上一页
-     */
-    goBack() {
-      this.$router.back();
     }
   }
 }
@@ -204,45 +188,6 @@ export default {
 .resume-detail {
   min-height: 100vh;
   background: #f5f7fa;
-}
-
-.header {
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 70px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: #409EFF;
-}
-
-.logo i {
-  margin-right: 10px;
-  cursor: pointer;
-  font-size: 24px;
-}
-
-.logo i:hover {
-  color: #66b1ff;
 }
 
 .main-content {

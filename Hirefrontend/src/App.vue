@@ -2,6 +2,9 @@
   <div id="app" class="boss-app">
     <router-view/>
 
+    <!-- BOSS风格底部 -->
+    <SimpleFooter v-if="showFooter" />
+
     <!-- AI 助手浮动按钮 -->
     <div v-if="currentUser" class="ai-fab" @click="$router.push('/AiChat')" title="AI 招聘助手">
       <i class="el-icon-cpu"></i>
@@ -11,13 +14,21 @@
 
 <script>
 import chatWebSocket from '@/utils/websocket';
+import SimpleFooter from '@/components/common/SimpleFooter.vue';
 
 export default {
   name: 'App',
+  components: { SimpleFooter },
   data() {
     return {
       currentUser: null
     };
+  },
+  computed: {
+    showFooter() {
+      const hiddenRoutes = ['LoginView', 'RegisTer'];
+      return !hiddenRoutes.includes(this.$route.name);
+    }
   },
   created() {
     const userStr = sessionStorage.getItem('user');

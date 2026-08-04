@@ -105,8 +105,8 @@ export default {
   cursor: pointer;
 
   &:hover {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
   }
 
   .company-header {

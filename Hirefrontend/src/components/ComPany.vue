@@ -1,92 +1,91 @@
 <template>
-  <div class="app-wrapper">
+  <div class="company-home-container">
+    <!-- 顶部导航 -->
     <AppHeader />
-<div class="company-home-container">
-    <!-- �������� -->
 
     <div class="container">
-      <!-- �������� -->
+      <!-- 搜索区域 -->
       <div class="search-section">
         <div class="search-row">
           <div class="search-input">
-            <el-input placeholder="������˾���ƣ��磺����Ͱ͡���Ѷ" v-model="searchKeyword"></el-input>
+            <el-input placeholder="搜索公司名称，如：阿里巴巴、腾讯" v-model="searchKeyword"></el-input>
           </div>
           <div class="industry-select">
-            <el-select v-model="searchIndustry" placeholder="��ҵ">
-              <el-option label="ȫ����ҵ" value=""></el-option>
-              <el-option label="������" value="������"></el-option>
-              <el-option label="��������" value="��������"></el-option>
-              <el-option label="����" value="����"></el-option>
-              <el-option label="����" value="����"></el-option>
-              <el-option label="���ز�" value="���ز�"></el-option>
-              <el-option label="ͨ�ż���" value="ͨ�ż���"></el-option>
+            <el-select v-model="searchIndustry" placeholder="行业">
+              <el-option label="全部行业" value=""></el-option>
+              <el-option label="互联网" value="互联网"></el-option>
+              <el-option label="电子商务" value="电子商务"></el-option>
+              <el-option label="金融" value="金融"></el-option>
+              <el-option label="教育" value="教育"></el-option>
+              <el-option label="房地产" value="房地产"></el-option>
+              <el-option label="通信技术" value="通信技术"></el-option>
             </el-select>
           </div>
           <div class="search-btn">
-            <el-button type="primary" icon="el-icon-search" @click="searchCompanies" style="width:100%;height: 40px">������˾</el-button>
+            <el-button type="primary" icon="el-icon-search" @click="searchCompanies" style="width:100%;height: 40px">搜索公司</el-button>
           </div>
         </div>
       </div>
 
-      <div class="section-title">���Ź�˾</div>
+      <div class="section-title">热门公司</div>
 
-      <!-- ��Ҫ������ -->
+      <!-- 主要内容区 -->
       <div class="main-content">
-        <!-- ɸѡ����� -->
+        <!-- 筛选侧边栏 -->
         <div class="filter-sidebar">
           <div class="filter-section">
-            <div class="filter-title">��ҵ����</div>
+            <div class="filter-title">行业领域</div>
             <el-radio-group v-model="filters.industry" @change="filterCompanies">
-              <el-radio label="">ȫ��</el-radio>
-              <el-radio label="������">������</el-radio>
-              <el-radio label="��������">��������</el-radio>
-              <el-radio label="����">����</el-radio>
-              <el-radio label="����">����</el-radio>
-              <el-radio label="���ز�">���ز�</el-radio>
-              <el-radio label="ͨ�ż���">ͨ�ż���</el-radio>
+              <el-radio label="">全部</el-radio>
+              <el-radio label="互联网">互联网</el-radio>
+              <el-radio label="电子商务">电子商务</el-radio>
+              <el-radio label="金融">金融</el-radio>
+              <el-radio label="教育">教育</el-radio>
+              <el-radio label="房地产">房地产</el-radio>
+              <el-radio label="通信技术">通信技术</el-radio>
             </el-radio-group>
           </div>
 
           <div class="filter-section">
-            <div class="filter-title">��˾��ģ</div>
+            <div class="filter-title">公司规模</div>
             <el-radio-group v-model="filters.scale" @change="filterCompanies">
-              <el-radio label="">����</el-radio>
-              <el-radio label="����50��">����50��</el-radio>
-              <el-radio label="50-200��">50-200��</el-radio>
-              <el-radio label="200-500��">200-500��</el-radio>
-              <el-radio label="500������">500������</el-radio>
+              <el-radio label="">不限</el-radio>
+              <el-radio label="少于50人">少于50人</el-radio>
+              <el-radio label="50-200人">50-200人</el-radio>
+              <el-radio label="200-500人">200-500人</el-radio>
+              <el-radio label="500人以上">500人以上</el-radio>
             </el-radio-group>
           </div>
 
           <div class="filter-section">
-            <div class="filter-title">���ʽ׶�</div>
+            <div class="filter-title">融资阶段</div>
             <el-radio-group v-model="filters.financeStage" @change="filterCompanies">
-              <el-radio label="">����</el-radio>
-              <el-radio label="δ����">δ����</el-radio>
-              <el-radio label="��ʹ��">��ʹ��</el-radio>
-              <el-radio label="A��">A��</el-radio>
-              <el-radio label="B��">B��</el-radio>
-              <el-radio label="C��">C��</el-radio>
-              <el-radio label="D�ּ�����">D�ּ�����</el-radio>
-              <el-radio label="���й�˾">���й�˾</el-radio>
+              <el-radio label="">不限</el-radio>
+              <el-radio label="未融资">未融资</el-radio>
+              <el-radio label="天使轮">天使轮</el-radio>
+              <el-radio label="A轮">A轮</el-radio>
+              <el-radio label="B轮">B轮</el-radio>
+              <el-radio label="C轮">C轮</el-radio>
+              <el-radio label="D轮及以上">D轮及以上</el-radio>
+              <el-radio label="上市公司">上市公司</el-radio>
             </el-radio-group>
           </div>
 
           <div class="filter-section">
-            <div class="filter-title">�����ص�</div>
+            <div class="filter-title">工作地点</div>
             <el-checkbox-group v-model="filters.location" @change="filterCompanies">
-              <el-checkbox label="">ȫ��</el-checkbox>
-              <el-checkbox label="����">����</el-checkbox>
-              <el-checkbox label="�Ϻ�">�Ϻ�</el-checkbox>
-              <el-checkbox label="����">����</el-checkbox>
-              <el-checkbox label="����">����</el-checkbox>
-              <el-checkbox label="����">����</el-checkbox>
-              <el-checkbox label="�ɶ�">�ɶ�</el-checkbox>
+              <el-checkbox label="">全部</el-checkbox>
+              <el-checkbox label="北京">北京</el-checkbox>
+              <el-checkbox label="上海">上海</el-checkbox>
+              <el-checkbox label="广州">广州</el-checkbox>
+              <el-checkbox label="深圳">深圳</el-checkbox>
+              <el-checkbox label="杭州">杭州</el-checkbox>
+              <el-checkbox label="成都">成都</el-checkbox>
             </el-checkbox-group>
           </div>
         </div>
 
-        <!-- ��˾�б� -->
+        <!-- 公司列表 -->
         <div class="company-list">
           <div v-for="company in filteredCompanies" :key="company.id" class="company-card" @click="goToCompanyDetail(company.id)">
             <div class="company-header">
@@ -98,7 +97,7 @@
                 <div class="company-name">{{ company.name }}</div>
                 <div class="company-desc">{{ company.description }}</div>
                 <div class="company-tags">
-                  <!-- ��˾��ǩ���� -->
+                  <!-- 公司标签处理 -->
                   <span class="company-tag" v-for="(tag, index) in getCompanyTags(company)" :key="index">{{ tag }}</span>
                 </div>
               </div>
@@ -107,28 +106,28 @@
             <div class="company-details">
               <div class="detail-item">
                 <i class="fas fa-users"></i>
-                <span>��ģ��{{ company.scale }}</span>
+                <span>规模：{{ company.scale }}</span>
               </div>
               <div class="detail-item">
                 <i class="fas fa-map-marker-alt"></i>
-                <span>�ص㣺{{ company.address }}</span>
+                <span>地点：{{ company.address }}</span>
               </div>
               <div class="detail-item">
                 <i class="fas fa-industry"></i>
-                <span>��ҵ��{{ company.industry }}</span>
+                <span>行业：{{ company.industry }}</span>
               </div>
               <div class="detail-item">
                 <i class="fas fa-phone"></i>
-                <span>�绰��{{ company.phone }}</span>
+                <span>电话：{{ company.phone }}</span>
               </div>
             </div>
 
             <div class="company-actions">
-              <el-button type="primary" size="small" @click.stop="goToCompanyDetail(company.id)">�鿴����</el-button>
+              <el-button type="primary" size="small" @click.stop="goToCompanyDetail(company.id)">查看详情</el-button>
             </div>
           </div>
 
-          <!-- ��ҳ -->
+          <!-- 分页 -->
           <div class="pagination">
             <el-pagination
                 background
@@ -143,17 +142,16 @@
       </div>
     </div>
   </div>
-    <SimpleFooter />
-  </div>
-
-
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue'
 
 export default {
   name: 'CompanyHome',
-  components: {},
+  components: {
+    AppHeader
+  },
   data() {
     return {
       searchKeyword: '',
@@ -171,10 +169,10 @@ export default {
     }
   },
   mounted() {
-    // ��ʼ����ʾ���й�˾
+    // 初始化显示所有公司
     this.loadCompanies();
     
-    // ��sessionStorage��ȡ�û���Ϣ
+    // 从sessionStorage获取用户信息
 
   },
   methods: {
@@ -191,13 +189,13 @@ export default {
         
         if (response.data.code === 200) {
           const pageData = response.data.data;
-          this.companies = pageData.records;
-          this.filteredCompanies = pageData.records;
-          this.total = pageData.total;
+          this.companies = pageData.records || pageData;
+          this.filteredCompanies = pageData.records || pageData;
+          this.total = pageData.total || 0;
         }
       } catch (error) {
-        console.error('���ع�˾����ʧ��:', error);
-        this.$message.error('���ع�˾����ʧ��');
+        console.error('加载公司数据失败:', error);
+        this.$message.error('加载公司数据失败');
       }
     },
     
@@ -214,13 +212,13 @@ export default {
         
         if (response.data.code === 200) {
           const pageData = response.data.data;
-          this.companies = pageData.records;
-          this.filteredCompanies = pageData.records;
-          this.total = pageData.total;
+          this.companies = pageData.records || pageData;
+          this.filteredCompanies = pageData.records || pageData;
+          this.total = pageData.total || 0;
         }
       } catch (error) {
-        console.error('���ع�˾����ʧ��:', error);
-        this.$message.error('���ع�˾����ʧ��');
+        console.error('加载公司数据失败:', error);
+        this.$message.error('加载公司数据失败');
       }
     },
 
@@ -228,7 +226,7 @@ export default {
       const userStr = sessionStorage.getItem('user')
       const user = userStr ? JSON.parse(userStr) : null
 
-      if (user && user.role === 1) {  // HR��ɫ
+      if (user && user.role === 1) {  // HR角色
         this.$router.push('/HrHomePage')
       } else {
         this.$router.push('/HomePage')
@@ -238,7 +236,7 @@ export default {
       this.$router.push('/Position');
     },
     goToCompany() {
-      // ��ǰ�Ѿ��ڹ�˾ҳ�棬ˢ��ҳ������κβ���
+      // 当前已经在公司页面，刷新页面或不做任何操作
       this.$router.push('/ComPany');
     },
     certificate(){
@@ -254,7 +252,7 @@ export default {
     
     async searchCompanies() {
       try {
-        // ����ҳ��Ϊ��һҳ
+        // 重置页码为第一页
         this.currentPage = 1;
         
         const response = await this.$axios.get(this.$apiBaseUrl + '/company/list', {
@@ -268,27 +266,27 @@ export default {
         
         if (response.data.code === 200) {
           const pageData = response.data.data;
-          this.companies = pageData.records;
-          this.filteredCompanies = pageData.records;
-          this.total = pageData.total;
+          this.companies = pageData.records || pageData;
+          this.filteredCompanies = pageData.records || pageData;
+          this.total = pageData.total || 0;
           
           this.$message({
-            message: `������ ${pageData.total} �ҹ�˾`,
+            message: `搜索到 ${this.companies.length} 家公司`,
             type: 'success'
           });
         }
       } catch (error) {
-        console.error('������˾ʧ��:', error);
-        this.$message.error('������˾ʧ��');
+        console.error('搜索公司失败:', error);
+        this.$message.error('搜索公司失败');
       }
     },
     
     async filterCompanies() {
       try {
-        // ����ҳ��Ϊ��һҳ
+        // 重置页码为第一页
         this.currentPage = 1;
         
-        // ����ɸѡ����
+        // 构建筛选参数
         const params = {
           page: this.currentPage,
           size: 10
@@ -302,16 +300,14 @@ export default {
         });
         
         if (response.data.code === 200) {
-          this.companies = response.data.data;
-          this.filteredCompanies = response.data.data;
-          // ע�⣺ɸѡ�ӿڿ��ܲ�����total���������ʾ��
-          if (response.data.total !== undefined) {
-            this.total = response.data.total;
-          }
+          const pageData = response.data.data;
+          this.companies = pageData.records || pageData;
+          this.filteredCompanies = pageData.records || pageData;
+          this.total = pageData.total || (Array.isArray(pageData) ? pageData.length : this.companies.length);
         }
       } catch (error) {
-        console.error('ɸѡ��˾ʧ��:', error);
-        this.$message.error('ɸѡ��˾ʧ��');
+        console.error('筛选公司失败:', error);
+        this.$message.error('筛选公司失败');
       }
     },
     
@@ -321,7 +317,7 @@ export default {
     },
     
     getCompanyTags(company) {
-      // ���ݹ�˾��Ϣ���ɱ�ǩ
+      // 根据公司信息生成标签
       const tags = [];
       if (company.scale) tags.push(company.scale);
       if (company.industry) tags.push(company.industry);
@@ -329,20 +325,20 @@ export default {
     },
     
     goToCompanyDetail(companyId) {
-      // ��ת����˾����ҳ
+      // 跳转到公司详情页
       this.$router.push('/CompanyDetail/' + companyId);
     },
     
     viewJobs(company) {
       this.$message({
-        message: `�鿴${company.name}��ְλ`,
+        message: `查看${company.name}的职位`,
         type: 'info'
       });
-      // ���������ת���ù�˾��ְλ�б�ҳ��
+      // 这里可以跳转到该公司的职位列表页面
     },
     
     /**
-     * ��ת����Ϣ����
+     * 跳转到消息中心
      */
     goToMessageCenter() {
       this.$router.push({
@@ -351,40 +347,40 @@ export default {
     },
     
     followCompany(company) {
-      // �� sessionStorage ��ȡ��ǰ�û���Ϣ
+      // 从 sessionStorage 获取当前用户信息
       const currentUser = JSON.parse(sessionStorage.getItem('user'));
       if (!currentUser) {
         this.$message({
-          message: '���ȵ�¼',
+          message: '请先登录',
           type: 'warning'
         });
         this.$router.push('/');
         return;
       }
           
-      // ��ʾ������ʾ
+      // 显示加载提示
       const loading = this.$loading({
         lock: true,
-        text: '������...',
+        text: '操作中...',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       });
             
-      // ����Ƿ��ѹ�ע�������ǹ�ע����ȡ����ע
+      // 检查是否已关注，决定是关注还是取消关注
       const isFollowed = company.isFollowed || false;
       const url = isFollowed 
         ? `${this.$apiBaseUrl}/user-follow-company/unfollow`
         : `${this.$apiBaseUrl}/user-follow-company/follow`;
       
-      const message = isFollowed ? 'ȷ��Ҫȡ����ע��' : `ȷ��Ҫ��ע${company.name}��`;
+      const message = isFollowed ? '确定要取消关注吗？' : `确定要关注${company.name}吗？`;
       
-      // ��ʾȷ�϶Ի���
-      this.$confirm(message, '��ʾ', {
-        confirmButtonText: 'ȷ��',
-        cancelButtonText: 'ȡ��',
+      // 显示确认对话框
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: isFollowed ? 'warning' : 'info'
       }).then(() => {
-        // ���ú�� API ��ע/ȡ����ע��˾
+        // 调用后端 API 关注/取消关注公司
         this.$axios.post(url, null, {
           params: {
             userId: currentUser.id,
@@ -394,19 +390,19 @@ export default {
         .then(response => {
           loading.close();
           if (response.data.code === 200) {
-            // ���¹�˾�Ĺ�ע״̬
+            // 更新公司的关注状态
             company.isFollowed = !isFollowed;
-            const message = isFollowed ? '��ȡ����ע' : `�ѹ�ע${company.name}`;
+            const message = isFollowed ? '已取消关注' : `已关注${company.name}`;
             this.$message({
               message: message,
               type: isFollowed ? 'info' : 'success',
               duration: 2000
             });
-            // ����ǹ�ע��������ʾ�û����Ե��������Ĳ鿴
+            // 如果是关注操作，提示用户可以到个人中心查看
             if (!isFollowed) {
               setTimeout(() => {
                 this.$message({
-                  message: '�����Ե��������Ĳ鿴�ѹ�ע�Ĺ�˾',
+                  message: '您可以到个人中心查看已关注的公司',
                   type: 'info',
                   duration: 3000
                 });
@@ -414,22 +410,22 @@ export default {
             }
           } else {
             this.$message({
-              message: '����ʧ�ܣ�' + response.data.msg,
+              message: '操作失败：' + response.data.msg,
               type: 'error'
             });
           }
         })
         .catch(error => {
           loading.close();
-          console.error('����ʧ��:', error);
+          console.error('操作失败:', error);
           this.$message({
-            message: '����ʧ��',
+            message: '操作失败',
             type: 'error'
           });
         });
       }).catch(() => {
         this.$message({
-          message: '��ȡ������',
+          message: '已取消操作',
           type: 'info'
         });
       });
@@ -462,51 +458,6 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 15px;
-}
-
-.header {
-  background: linear-gradient(135deg, #3498db, #2c3e50);
-  color: white;
-  padding: 15px 0;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.logo i {
-  margin-right: 10px;
-  font-size: 28px;
-}
-
-.nav-menu {
-  display: flex;
-}
-
-.nav-menu .nav-btn {
-  margin-left: 15px;
-  color: white;
-  text-decoration: none;
-  padding: 8px 15px;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.nav-menu .nav-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .search-section {
@@ -679,31 +630,6 @@ body {
   gap: 10px;
 }
 
-.footer {
-  text-align: center;
-  padding: 40px 0;
-  margin-top: 50px;
-  color: #909399;
-  border-top: 1px solid #ebeef5;
-  background-color: white;
-}
-
-.footer-links {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.footer-link {
-  color: #606266;
-  text-decoration: none;
-}
-
-.footer-link:hover {
-  color: #3498db;
-}
-
 .pagination {
   margin-top: 30px;
   text-align: center;
@@ -737,21 +663,6 @@ body {
 
   .filter-sidebar {
     width: 100%;
-  }
-
-  .header-content {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .nav-menu {
-    margin-top: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .nav-menu .nav-btn {
-    margin: 5px;
   }
 
   .search-row {

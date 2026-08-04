@@ -1,5 +1,6 @@
 <template>
   <div class="boss-home">
+    <!-- 顶部导航 -->
     <AppHeader />
 
     <!-- 搜索 Hero 区域 BOSS直聘风格 -->
@@ -102,11 +103,13 @@
 </template>
 
 <script>
-import AppHeader from '@/components/common/AppHeader.vue';
+import AppHeader from '@/components/common/AppHeader.vue'
 
 export default {
   name: 'HomepageE',
-  components: { AppHeader },
+  components: {
+    AppHeader
+  },
   data() {
     return {
       searchForm: { keyword: '', city: '' },
@@ -125,22 +128,16 @@ export default {
         { id: 5, name: '百度', industry: '互联网' },
         { id: 6, name: '京东', industry: '电子商务' }
       ]
-    };
-  },
-  mounted() {
-    this.loadHotJobs();
+    }
   },
   methods: {
-    async loadHotJobs() {
-      try {
-        const res = await this.$axios.get(this.$apiBaseUrl + '/job/hot', { params: { limit: 8 } });
-        if (res.data.code === 200 && res.data.data.length > 0) {
-          this.recommendedJobs = res.data.data;
-        }
-      } catch (e) { /* keep hardcoded fallback */ }
+    searchJobs() {
+      this.$router.push('/Position');
     },
-    searchJobs() { this.$router.push('/Position'); },
-    quickSearch(tag) { this.searchForm.keyword = tag; this.searchJobs(); },
+    quickSearch(tag) {
+      this.searchForm.keyword = tag;
+      this.searchJobs();
+    },
     viewAllPositions() { this.$router.push('/Position'); },
     viewAllCompanies() { this.$router.push('/ComPany'); },
     viewJobDetail(job) { this.$router.push('/JobDetail/' + job.id); },
@@ -161,76 +158,40 @@ export default {
       return new Date(time).toLocaleDateString('zh-CN');
     }
   }
-};
+}
 </script>
 
 <style scoped>
 .boss-home { min-height: 100vh; background: #F5F6FA; }
 
-/* ====== 搜索 Hero ====== */
 .search-hero {
   background: linear-gradient(135deg, #00C2A1 0%, #00BFA5 100%);
   padding: 50px 20px 40px;
 }
 .hero-inner { max-width: 780px; margin: 0 auto; }
 .hero-title {
-  color: #fff;
-  font-size: 32px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 24px;
+  color: #fff; font-size: 32px; font-weight: 700;
+  text-align: center; margin-bottom: 24px;
 }
 .search-box {
-  background: #fff;
-  border-radius: 8px;
-  padding: 16px 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  background: #fff; border-radius: 8px; padding: 16px 20px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 .search-tabs { margin-bottom: 12px; }
-.search-tab {
-  font-size: 16px;
-  font-weight: 600;
-  color: #00C2A1;
-  cursor: pointer;
-}
+.search-tab { font-size: 16px; font-weight: 600; color: #00C2A1; cursor: pointer; }
 .search-input-row {
-  display: flex;
-  align-items: center;
-  border: 1px solid #E8E8E8;
-  border-radius: 6px;
-  overflow: hidden;
-  height: 44px;
+  display: flex; align-items: center; border: 1px solid #E8E8E8;
+  border-radius: 6px; overflow: hidden; height: 44px;
 }
 .search-field {
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  flex: 1;
-  gap: 8px;
-  color: #999;
+  display: flex; align-items: center; padding: 0 14px; flex: 1; gap: 8px; color: #999;
 }
-.search-field input {
-  border: none;
-  outline: none;
-  width: 100%;
-  font-size: 14px;
-  color: #333;
-}
+.search-field input { border: none; outline: none; width: 100%; font-size: 14px; color: #333; }
 .search-field input::placeholder { color: #BBB; }
-.search-divider {
-  width: 1px;
-  height: 24px;
-  background: #E8E8E8;
-}
+.search-divider { width: 1px; height: 24px; background: #E8E8E8; }
 .search-btn {
-  background: #00C2A1;
-  color: #fff;
-  border: none;
-  padding: 0 32px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  height: 100%;
+  background: #00C2A1; color: #fff; border: none; padding: 0 32px;
+  font-size: 15px; font-weight: 600; cursor: pointer; height: 100%;
   transition: background 0.2s;
 }
 .search-btn:hover { background: #00B593; }
@@ -238,97 +199,48 @@ export default {
 .hot-tag { color: #666; cursor: pointer; margin: 0 8px; }
 .hot-tag:hover { color: #00C2A1; }
 
-/* ====== 内容区 ====== */
 .content-area {
-  max-width: 1200px;
-  margin: 24px auto;
-  padding: 0 20px;
-  display: flex;
-  gap: 20px;
+  max-width: 1200px; margin: 24px auto; padding: 0 20px; display: flex; gap: 20px;
 }
 .content-left { flex: 1; min-width: 0; }
 .content-right { width: 280px; flex-shrink: 0; }
 
-/* ====== 职位卡片 BOSS直聘风格 ====== */
 .boss-section {
-  background: #fff;
-  border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 20px;
+  background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 20px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
-.section-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
+.section-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
 .section-top h2 { font-size: 18px; font-weight: 700; color: #222; }
 .section-more { font-size: 13px; color: #00C2A1; cursor: pointer; }
 
 .job-list { display: flex; flex-direction: column; gap: 1px; }
-.job-card {
-  padding: 16px 0;
-  border-bottom: 1px solid #F0F0F0;
-  cursor: pointer;
-  transition: background 0.15s;
-}
+.job-card { padding: 16px 0; border-bottom: 1px solid #F0F0F0; cursor: pointer; transition: background 0.15s; }
 .job-card:last-child { border-bottom: none; }
 .job-card:hover { background: #FAFFFE; }
-
-.job-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 8px;
-}
+.job-card-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
 .job-card-title { font-size: 16px; font-weight: 600; color: #222; margin: 0; }
 .job-card-salary { font-size: 16px; font-weight: 700; color: #FA604A; white-space: nowrap; }
-
 .job-card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .job-tag-item {
-  font-size: 12px;
-  color: #666;
-  background: #F5F7FA;
-  padding: 2px 8px;
-  border-radius: 3px;
+  font-size: 12px; color: #666; background: #F5F7FA; padding: 2px 8px; border-radius: 3px;
 }
-
 .job-card-bottom { display: flex; justify-content: space-between; align-items: center; }
 .job-card-company { font-size: 13px; color: #999; display: flex; align-items: center; gap: 4px; }
 .job-card-time { font-size: 12px; color: #BBB; }
 
-/* ====== 公司卡片 ====== */
 .company-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.company-card {
-  text-align: center;
-  padding: 20px 10px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: box-shadow 0.2s;
-}
+.company-card { text-align: center; padding: 20px 10px; cursor: pointer; border-radius: 8px; transition: box-shadow 0.2s; }
 .company-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
 .company-card-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #E6F9F5;
-  color: #00C2A1;
-  margin: 0 auto 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
+  width: 48px; height: 48px; border-radius: 12px; background: #E6F9F5;
+  color: #00C2A1; margin: 0 auto 10px; display: flex; align-items: center;
+  justify-content: center; font-size: 22px;
 }
 .company-card-name { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px; }
 .company-card-industry { font-size: 13px; color: #999; }
 
-/* ====== 侧边栏 ====== */
 .side-box {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 16px;
+  background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 .side-box h4 { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 14px; }
@@ -336,7 +248,6 @@ export default {
 .tips-list { padding: 0 0 0 16px; margin: 0; }
 .tips-list li { font-size: 13px; color: #666; margin-bottom: 8px; line-height: 1.5; }
 
-/* Element UI 主题覆盖 */
 ::v-deep .el-button--primary { background: #00C2A1; border-color: #00C2A1; }
 ::v-deep .el-button--primary:hover { background: #00B593; border-color: #00B593; }
 ::v-deep .el-button--primary.is-plain { color: #00C2A1; background: #E6F9F5; border-color: #00C2A1; }

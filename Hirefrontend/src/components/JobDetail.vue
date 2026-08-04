@@ -1,19 +1,18 @@
 <template>
-  <div class="app-wrapper">
+  <div class="job-detail-container">
+    <!-- 顶部导航 -->
     <AppHeader />
-<div class="job-detail-container">
-    <!-- �������� -->
 
-    <!-- ��Ҫ���� -->
+    <!-- 主要内容 -->
     <div class="main-content">
       <div class="container">
-        <!-- ���ذ�ť -->
+        <!-- 返回按钮 -->
         <div class="back-btn">
-          <el-button icon="el-icon-arrow-left" @click="goBack">����ְλ�б�</el-button>
+          <el-button icon="el-icon-arrow-left" @click="goBack">返回职位列表</el-button>
         </div>
 
         <div v-loading="loading" class="job-detail">
-          <!-- ְλ��Ϣ��Ƭ -->
+          <!-- 职位信息卡片 -->
           <div class="job-info-card">
             <div class="job-header">
               <div class="job-title-section">
@@ -35,63 +34,63 @@
               </div>
               <div class="company-detail">
                 <div class="company-name" @click="goToCompanyDetail">{{ job.companyName }}</div>
-                <div class="company-desc">{{ job.industry || '��ҵ����' }} �� {{ job.companySize || '��ģ����' }}</div>
+                <div class="company-desc">{{ job.industry || '行业不限' }} · {{ job.companySize || '规模不限' }}</div>
               </div>
               <el-button type="primary" size="large" @click="applyJob" :loading="applying">
-                {{ hasApplied ? '������' : '����ְλ' }}
+                {{ hasApplied ? '已申请' : '申请职位' }}
               </el-button>
-              <el-button size="large" 
+              <el-button size="large"
                 :type="isFav ? 'warning' : 'default'"
                 :icon="isFav ? 'el-icon-star-on' : 'el-icon-star-off'"
                 @click="toggleFavorite">
-                {{ isFav ? '���ղ�' : '�ղ�' }}
+                {{ isFav ? '已收藏' : '收藏' }}
               </el-button>
             </div>
           </div>
 
-          <!-- ְλ���� -->
+          <!-- 职位详情 -->
           <div class="job-description-section">
             <h3 class="section-title">
               <i class="fas fa-align-left"></i>
-              ְλ����
+              职位描述
             </h3>
             <div class="description-content">
-              <p>{{ job.description || '����ְλ����' }}</p>
+              <p>{{ job.description || '暂无职位描述' }}</p>
             </div>
           </div>
 
-          <!-- ְλҪ�� -->
+          <!-- 职位要求 -->
           <div class="job-requirements-section">
             <h3 class="section-title">
               <i class="fas fa-list-ul"></i>
-              ְλҪ��
+              职位要求
             </h3>
             <div class="requirements-content">
               <div class="requirement-item" v-if="job.experience">
                 <div class="requirement-label">
                   <i class="fas fa-user-tie"></i>
-                  ����Ҫ��
+                  经验要求
                 </div>
                 <div class="requirement-value">{{ job.experience }}</div>
               </div>
               <div class="requirement-item" v-if="job.education">
                 <div class="requirement-label">
                   <i class="fas fa-graduation-cap"></i>
-                  ѧ��Ҫ��
+                  学历要求
                 </div>
                 <div class="requirement-value">{{ job.education }}</div>
               </div>
               <div class="requirement-item" v-if="job.city">
                 <div class="requirement-label">
                   <i class="fas fa-map-marker-alt"></i>
-                  �����ص�
+                  工作地点
                 </div>
                 <div class="requirement-value">{{ job.city }}</div>
               </div>
               <div class="requirement-item" v-if="job.tags">
                 <div class="requirement-label">
                   <i class="fas fa-tags"></i>
-                  ְλ��ǩ
+                  职位标签
                 </div>
                 <div class="requirement-value">
                   <span class="tag" v-for="(tag, index) in job.tags.split(',')" :key="index">{{ tag.trim() }}</span>
@@ -100,19 +99,19 @@
             </div>
           </div>
 
-          <!-- ������Ϣ -->
+          <!-- 其他信息 -->
           <div class="additional-info-section">
             <h3 class="section-title">
               <i class="fas fa-info-circle"></i>
-              ������Ϣ
+              其他信息
             </h3>
             <div class="info-grid">
               <div class="info-item">
-                <div class="label">����ʱ��</div>
+                <div class="label">发布时间</div>
                 <div class="value">{{ formatTime(job.createTime) }}</div>
               </div>
               <div class="info-item">
-                <div class="label">����ʱ��</div>
+                <div class="label">更新时间</div>
                 <div class="value">{{ formatTime(job.updateTime) }}</div>
               </div>
             </div>
@@ -120,16 +119,18 @@
         </div>
       </div>
     </div>
-  </div>
-  </div>
 
+  </div>
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue'
 
 export default {
   name: 'JobDetail',
-  components: {},
+  components: {
+    AppHeader
+  },
   data() {
     return {
       jobId: null,
@@ -142,15 +143,16 @@ export default {
     }
   },
   created() {
+    // 获取职位 ID
     this.jobId = this.$route.params.id;
-    // ��ȡ��ǰ�û�
+    // 获取当前用户
     const userStr = sessionStorage.getItem('user');
     if (userStr) {
       this.currentUser = JSON.parse(userStr);
     }
-    // ����ְλ����
+    // 加载职位详情
     this.loadJobDetail();
-    // ����Ƿ�������
+    // 检查是否已申请
     if (this.currentUser) {
       this.checkApplicationStatus();
       this.checkFavorite();
@@ -165,11 +167,11 @@ export default {
         if (response.data.code === 200) {
           this.job = response.data.data;
         } else {
-          this.$message.error(response.data.msg || '����ְλ����ʧ��');
+          this.$message.error(response.data.msg || '加载职位详情失败');
         }
       } catch (error) {
-        console.error('����ְλ����ʧ��:', error);
-        this.$message.error('����ְλ����ʧ��');
+        console.error('加载职位详情失败:', error);
+        this.$message.error('加载职位详情失败');
       } finally {
         this.loading = false;
       }
@@ -177,13 +179,17 @@ export default {
 
     async checkApplicationStatus() {
       try {
-        const res = await this.$axios.get(this.$apiBaseUrl + '/job-application/user/' + this.currentUser.id);
-        if (res.data.code === 200) {
-          const applications = res.data.data || [];
-          this.hasApplied = applications.some(app => app.jobId === this.jobId);
+        const response = await this.$axios.get(this.$apiBaseUrl + '/job-application/check', {
+          params: {
+            jobId: this.jobId,
+            userId: this.currentUser.id
+          }
+        });
+        if (response.data.code === 200) {
+          this.hasApplied = response.data.data;
         }
       } catch (error) {
-        console.error('�������״̬ʧ��:', error);
+        console.error('检查申请状态失败:', error);
       }
     },
     async checkFavorite() {
@@ -196,7 +202,7 @@ export default {
       } catch (e) { /* ignore */ }
     },
     async toggleFavorite() {
-      if (!this.currentUser) { this.$message.warning('���ȵ�¼'); return; }
+      if (!this.currentUser) { this.$message.warning('请先登录'); return; }
       const url = this.isFav ? '/favorite/remove' : '/favorite/add';
       try {
         const res = await this.$axios.post(`${this.$apiBaseUrl}${url}`, {
@@ -204,38 +210,38 @@ export default {
         });
         if (res.data.code === 200) {
           this.isFav = !this.isFav;
-          this.$message.success(this.isFav ? '�ղسɹ�' : '��ȡ���ղ�');
+          this.$message.success(this.isFav ? '收藏成功' : '已取消收藏');
         }
       } catch (e) { /* ignore */ }
     },
 
     async applyJob() {
       if (!this.currentUser) {
-        this.$message.warning('���ȵ�¼');
+        this.$message.warning('请先登录');
         this.$router.push('/');
         return;
       }
 
       if (this.hasApplied) {
-        this.$message.info('���Ѿ��������ְλ');
+        this.$message.info('您已经申请过该职位');
         return;
       }
 
       try {
         this.applying = true;
         
-        // ��ȡĬ�ϼ���
+        // 获取默认简历
         const resumeResponse = await this.$axios.get(this.$apiBaseUrl + '/resume/default/' + this.currentUser.id);
         
         if (resumeResponse.data.code !== 200 || !resumeResponse.data.data) {
-          this.$message.warning('�������Ƽ���');
+          this.$message.warning('请先完善简历');
           this.$router.push('/EditResume');
           return;
         }
 
         const resumeId = resumeResponse.data.data.id;
 
-        // ����ְλ - ʹ����ȷ�Ľӿ�
+        // 申请职位 - 使用正确的接口
         const applyResponse = await this.$axios.post(
           this.$apiBaseUrl + '/job-application/apply',
           null,
@@ -249,14 +255,14 @@ export default {
         );
 
         if (applyResponse.data.code === 200) {
-          this.$message.success('����ɹ�');
+          this.$message.success('申请成功');
           this.hasApplied = true;
         } else {
-          this.$message.error(applyResponse.data.msg || '����ʧ��');
+          this.$message.error(applyResponse.data.msg || '申请失败');
         }
       } catch (error) {
-        console.error('����ְλʧ��:', error);
-        this.$message.error('����ʧ�ܣ�' + (error.response?.data?.msg || error.message));
+        console.error('申请职位失败:', error);
+        this.$message.error('申请失败：' + (error.response?.data?.msg || error.message));
       } finally {
         this.applying = false;
       }
@@ -266,7 +272,7 @@ export default {
       const userStr = sessionStorage.getItem('user')
       const user = userStr ? JSON.parse(userStr) : null
 
-      if (user && user.role === 1) {  // HR��ɫ
+      if (user && user.role === 1) {  // HR角色
         this.$router.push('/HrHomePage')
       } else {
         this.$router.push('/HomePage')
@@ -293,7 +299,7 @@ export default {
       if (this.job.companyId) {
         this.$router.push('/CompanyDetail/' + this.job.companyId);
       } else {
-        this.$message.info('��˾��Ϣ��������');
+        this.$message.info('公司信息暂无详情');
       }
     },
 
@@ -304,11 +310,11 @@ export default {
     logout() {
       sessionStorage.removeItem('user');
       this.$router.push('/');
-      this.$message.success('���˳���¼');
+      this.$message.success('已退出登录');
     },
 
     formatTime(time) {
-      if (!time) return 'δ֪';
+      if (!time) return '未知';
       const date = new Date(time);
       return date.toLocaleString('zh-CN', {
         year: 'numeric',
@@ -320,7 +326,7 @@ export default {
     },
 
     /**
-     * ��ת����Ϣ����
+     * 跳转到消息中心
      */
     goToMessageCenter() {
       this.$router.push({
@@ -335,46 +341,6 @@ export default {
 .job-detail-container {
   min-height: 100vh;
   background: #f5f7fa;
-}
-
-.header {
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 70px;
-
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 20px;
-        font-weight: bold;
-        color: #409EFF;
-
-        i {
-          font-size: 24px;
-        }
-      }
-
-      .nav-menu {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-    }
-  }
 }
 
 .main-content {
@@ -596,20 +562,4 @@ export default {
   }
 }
 
-.footer {
-  background: #fff;
-  padding: 30px 20px;
-  margin-top: 50px;
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-
-    .footer-links {
-      text-align: center;
-      color: #909399;
-      font-size: 13px;
-    }
-  }
-}
 </style>

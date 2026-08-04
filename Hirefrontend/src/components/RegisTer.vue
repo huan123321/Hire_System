@@ -256,7 +256,7 @@ export default {
           )
             .then(res => {
               this.loading = false;
-              if (res.data.code === 200) {
+              if (res.data.success) {
                 this.$message.success("注册成功！");
                 // 注册成功后跳转到登录页面
                 this.$router.replace('/');
@@ -292,11 +292,11 @@ export default {
   background-image: linear-gradient(to bottom right, #FC466B, #3F5EF8);
   overflow: hidden;*/
   /*背景图*/
-  background: linear-gradient(135deg, #E6F9F5 0%, #C8ECE4 100%);
+  background: url("../assets/e44dc62f-007d-47b0-b1ae-94ce94105790.png");
   width: 100%;
   height: 100%;
   position: fixed;
-  
+  background-size: 100% 100%;
 }
 
 #building {

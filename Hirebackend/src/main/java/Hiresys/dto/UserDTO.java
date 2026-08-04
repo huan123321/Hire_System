@@ -53,7 +53,7 @@ public class UserDTO implements Serializable {
 
     private String companyName;
 
-    // �?注意：以下敏感字段不会包含在 DTO �?    // - password (密码)
+    // �?注意：以下敏感字段不会包含在 DTO �?    // - password (密码)
     // - lastLoginIp (最后登录IP)
     // - isDeleted (删除标志)
 }

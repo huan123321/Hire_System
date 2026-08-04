@@ -24,7 +24,7 @@
 
       <!-- ְλ�б� -->
       <div v-else-if="jobList.length > 0" class="job-management">
-        <div v-for="job in jobList" :key="job.id" class="job-card">
+        <div v-for="job in pagedJobs" :key="job.id" class="job-card">
           <div class="job-header">
             <div class="job-info">
               <h3 class="job-title">{{ job.title }}</h3>
@@ -303,6 +303,12 @@ export default {
     
     // ���ع�˾��Ϣ
     this.loadCompanyInfo();
+  },
+  computed: {
+    pagedJobs() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      return this.jobList.slice(start, start + this.pageSize);
+    }
   },
   methods: {
     async loadCompanyInfo() {
@@ -632,38 +638,6 @@ export default {
   padding: 0 15px;
 }
 
-.header {
-  background: #00C2A1;
-  color: white;
-  padding: 15px 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.logo i {
-  margin-right: 10px;
-  font-size: 28px;
-}
-
-.nav-menu {
-  display: flex;
-  gap: 10px;
-}
-
 .page-header {
   background: white;
   padding: 30px;
@@ -837,19 +811,6 @@ export default {
   margin-bottom: 30px;
 }
 
-.footer {
-  text-align: center;
-  padding: 30px 0;
-  margin-top: 40px;
-  color: #909399;
-  border-top: 2px solid rgba(102, 126, 234, 0.1);
-  background: white;
-}
-
-.footer-content {
-  font-size: 14px;
-}
-
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
@@ -878,16 +839,6 @@ export default {
   
   .job-actions {
     flex-direction: column;
-  }
-  
-  .header-content {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .nav-menu {
-    flex-wrap: wrap;
-    justify-content: center;
   }
 }
 </style>

@@ -1,11 +1,11 @@
 <template>
-  <div class="app-wrapper">
+  <div class="edit-resume-container">
+    <!-- 顶部导航 -->
     <AppHeader />
-<div class="edit-resume-container">
-    <!-- �������� -->
+
     <div class="container">
       <div class="main-content">
-        <!-- ��ർ�� -->
+        <!-- 左侧导航 -->
         <div class="side-nav">
           <el-menu
               :default-active="activeNav"
@@ -13,309 +13,310 @@
               @select="handleNavSelect">
             <el-menu-item index="profile">
               <i class="fas fa-user"></i>
-              <span>��������</span>
+              <span>个人资料</span>
             </el-menu-item>
             <el-menu-item index="resume">
               <i class="fas fa-file-alt"></i>
-              <span>�ҵļ���</span>
+              <span>我的简历</span>
             </el-menu-item>
             <el-menu-item index="applications">
               <i class="fas fa-paper-plane"></i>
-              <span>ְλ����</span>
+              <span>职位申请</span>
             </el-menu-item>
             <el-menu-item index="interviews">
               <i class="fas fa-handshake"></i>
-              <span>���԰���</span>
+              <span>面试安排</span>
             </el-menu-item>
           </el-menu>
         </div>
 
-        <!-- �Ҳ������� -->
+        <!-- 右侧内容区 -->
         <div class="content-area">
-          <div class="section-title">�༭����</div>
+          <div class="section-title">编辑简历</div>
           
-          <!-- ����ѡ��͹��� -->
+          <!-- 简历选择和管理 -->
           <div class="resume-management">
             <div class="resume-selector">
-              <el-select v-model="selectedResumeId" placeholder="ѡ�����" @change="loadResume">
+              <el-select v-model="selectedResumeId" placeholder="选择简历" @change="loadResume">
                 <el-option
                   v-for="item in resumeList"
                   :key="item.id"
-                  :label="item.name + (item.isDefault ? ' (Ĭ��)' : '')"
+                  :label="item.name + (item.isDefault ? ' (默认)' : '')"
                   :value="item.id">
                 </el-option>
               </el-select>
-              <el-button type="primary" @click="createNewResume" size="small">�½�����</el-button>
-              <el-button v-if="selectedResume && !selectedResume.isDefault" type="success" @click="setDefaultResume" size="small">��ΪĬ��</el-button>
-              <el-button v-if="selectedResume && !selectedResume.isDefault" type="danger" @click="deleteResume" size="small">ɾ��</el-button>
+              <el-button type="primary" @click="createNewResume" size="small">新建简历</el-button>
+              <el-button v-if="selectedResume && !selectedResume.isDefault" type="success" @click="setDefaultResume" size="small">设为默认</el-button>
+              <el-button v-if="selectedResume && !selectedResume.isDefault" type="danger" @click="deleteResume" size="small">删除</el-button>
             </div>
           </div>
 
           <el-form v-if="selectedResume" :model="resumeForm" label-width="100px" class="resume-form">
-            <!-- ������Ϣ -->
+            <!-- 基本信息 -->
             <div class="form-section">
-              <h3>������Ϣ</h3>
-              <el-form-item label="��������">
-                <el-input v-model="resumeForm.name" placeholder="���磺�����ĸ��˼���"></el-input>
+              <h3>基本信息</h3>
+              <el-form-item label="简历名称">
+                <el-input v-model="resumeForm.name" placeholder="例如：张三的个人简历"></el-input>
               </el-form-item>
 
-              <el-form-item label="����">
+              <el-form-item label="姓名">
                 <el-input v-model="resumeForm.basicInfo.name"></el-input>
               </el-form-item>
 
-              <el-form-item label="�Ա�">
+              <el-form-item label="性别">
                 <el-radio-group v-model="resumeForm.basicInfo.gender">
-                  <el-radio label="��">��</el-radio>
-                  <el-radio label="Ů">Ů</el-radio>
+                  <el-radio label="男">男</el-radio>
+                  <el-radio label="女">女</el-radio>
                 </el-radio-group>
               </el-form-item>
 
-              <el-form-item label="����">
+              <el-form-item label="年龄">
                 <el-input-number v-model="resumeForm.basicInfo.age" :min="16" :max="100"></el-input-number>
               </el-form-item>
 
-              <el-form-item label="���ڵ�">
+              <el-form-item label="所在地">
                 <el-cascader
                     v-model="resumeForm.basicInfo.location"
                     :options="cityOptions"
-                    placeholder="��ѡ�����">
+                    placeholder="请选择地区">
                 </el-cascader>
               </el-form-item>
 
-              <el-form-item label="�ֻ���">
+              <el-form-item label="手机号">
                 <el-input v-model="resumeForm.basicInfo.phone"></el-input>
               </el-form-item>
 
-              <el-form-item label="����">
+              <el-form-item label="邮箱">
                 <el-input v-model="resumeForm.basicInfo.email" type="email"></el-input>
               </el-form-item>
             </div>
 
-            <!-- �������� -->
+            <!-- 教育背景 -->
             <div class="form-section">
               <div class="section-header">
-                <h3>��������</h3>
-                <el-button type="primary" size="small" @click="addEducation">��ӽ�������</el-button>
+                <h3>教育背景</h3>
+                <el-button type="primary" size="small" @click="addEducation">添加教育经历</el-button>
               </div>
 
               <div v-for="(edu, index) in resumeForm.education" :key="index" class="education-item">
                 <el-divider v-if="index > 0"></el-divider>
-                <el-form-item label="ѧУ����">
+                <el-form-item label="学校名称">
                   <el-input v-model="edu.school"></el-input>
                 </el-form-item>
 
-                <el-form-item label="רҵ">
+                <el-form-item label="专业">
                   <el-input v-model="edu.major"></el-input>
                 </el-form-item>
 
-                <el-form-item label="ѧ��">
-                  <el-select v-model="edu.degree" placeholder="��ѡ��ѧ��">
-                    <el-option label="��ר" value="��ר"></el-option>
-                    <el-option label="����" value="����"></el-option>
-                    <el-option label="˶ʿ" value="˶ʿ"></el-option>
-                    <el-option label="��ʿ" value="��ʿ"></el-option>
+                <el-form-item label="学历">
+                  <el-select v-model="edu.degree" placeholder="请选择学历">
+                    <el-option label="大专" value="大专"></el-option>
+                    <el-option label="本科" value="本科"></el-option>
+                    <el-option label="硕士" value="硕士"></el-option>
+                    <el-option label="博士" value="博士"></el-option>
                   </el-select>
                 </el-form-item>
 
-                <el-form-item label="ʱ��">
+                <el-form-item label="时间">
                   <el-date-picker
                       v-model="edu.startDate"
                       type="month"
-                      placeholder="��ʼʱ��"
+                      placeholder="开始时间"
                       style="width: 45%">
                   </el-date-picker>
-                  <span style="margin: 0 10px">��</span>
+                  <span style="margin: 0 10px">至</span>
                   <el-date-picker
                       v-model="edu.endDate"
                       type="month"
-                      placeholder="����ʱ��"
+                      placeholder="结束时间"
                       style="width: 45%">
                   </el-date-picker>
                 </el-form-item>
 
-                <el-form-item label="����">
+                <el-form-item label="描述">
                   <el-input
                       type="textarea"
                       :rows="3"
                       v-model="edu.description"
-                      placeholder="��������ѧϰ���������޿γ̵�">
+                      placeholder="描述您的学习经历、主修课程等">
                   </el-input>
                 </el-form-item>
 
                 <el-form-item>
-                  <el-button type="danger" size="small" @click="removeEducation(index)">ɾ��</el-button>
+                  <el-button type="danger" size="small" @click="removeEducation(index)">删除</el-button>
                 </el-form-item>
               </div>
             </div>
 
-            <!-- �������� -->
+            <!-- 工作经历 -->
             <div class="form-section">
               <div class="section-header">
-                <h3>��������</h3>
-                <el-button type="primary" size="small" @click="addExperience">��ӹ�������</el-button>
+                <h3>工作经历</h3>
+                <el-button type="primary" size="small" @click="addExperience">添加工作经历</el-button>
               </div>
 
               <div v-for="(exp, index) in resumeForm.experience" :key="index" class="experience-item">
                 <el-divider v-if="index > 0"></el-divider>
-                <el-form-item label="��˾����">
+                <el-form-item label="公司名称">
                   <el-input v-model="exp.company"></el-input>
                 </el-form-item>
 
-                <el-form-item label="ְλ">
+                <el-form-item label="职位">
                   <el-input v-model="exp.position"></el-input>
                 </el-form-item>
 
-                <el-form-item label="ʱ��">
+                <el-form-item label="时间">
                   <el-date-picker
                       v-model="exp.startDate"
                       type="month"
-                      placeholder="��ʼʱ��"
+                      placeholder="开始时间"
                       style="width: 45%">
                   </el-date-picker>
-                  <span style="margin: 0 10px">��</span>
+                  <span style="margin: 0 10px">至</span>
                   <el-date-picker
                       v-model="exp.endDate"
                       type="month"
-                      placeholder="����ʱ��"
+                      placeholder="结束时间"
                       style="width: 45%">
                   </el-date-picker>
                 </el-form-item>
 
-                <el-form-item label="��������">
+                <el-form-item label="工作描述">
                   <el-input
                       type="textarea"
                       :rows="4"
                       v-model="exp.description"
-                      placeholder="�������Ĺ������ݡ�ְ��ͳɾ�">
+                      placeholder="描述您的工作内容、职责和成就">
                   </el-input>
                 </el-form-item>
 
                 <el-form-item>
-                  <el-button type="danger" size="small" @click="removeExperience(index)">ɾ��</el-button>
+                  <el-button type="danger" size="small" @click="removeExperience(index)">删除</el-button>
                 </el-form-item>
               </div>
             </div>
 
-            <!-- ��Ŀ���� -->
+            <!-- 项目经验 -->
             <div class="form-section">
               <div class="section-header">
-                <h3>��Ŀ����</h3>
-                <el-button type="primary" size="small" @click="addProject">�����Ŀ����</el-button>
+                <h3>项目经验</h3>
+                <el-button type="primary" size="small" @click="addProject">添加项目经验</el-button>
               </div>
 
               <div v-for="(project, index) in resumeForm.projects" :key="index" class="project-item">
                 <el-divider v-if="index > 0"></el-divider>
-                <el-form-item label="��Ŀ����">
+                <el-form-item label="项目名称">
                   <el-input v-model="project.name"></el-input>
                 </el-form-item>
 
-                <el-form-item label="���ν�ɫ">
+                <el-form-item label="担任角色">
                   <el-input v-model="project.role"></el-input>
                 </el-form-item>
 
-                <el-form-item label="��Ŀʱ��">
-                  <el-input v-model="project.time" placeholder="���磺2020.03 - 2020.08"></el-input>
+                <el-form-item label="项目时间">
+                  <el-input v-model="project.time" placeholder="例如：2020.03 - 2020.08"></el-input>
                 </el-form-item>
 
-                <el-form-item label="��Ŀ����">
+                <el-form-item label="项目描述">
                   <el-input
                       type="textarea"
                       :rows="4"
                       v-model="project.description"
-                      placeholder="������Ŀ����������ְ�����Ŀ�ɹ�">
+                      placeholder="描述项目背景、您的职责和项目成果">
                   </el-input>
                 </el-form-item>
 
                 <el-form-item>
-                  <el-button type="danger" size="small" @click="removeProject(index)">ɾ��</el-button>
+                  <el-button type="danger" size="small" @click="removeProject(index)">删除</el-button>
                 </el-form-item>
               </div>
             </div>
 
             <el-form-item>
-              <el-button type="primary" @click="saveResume">�������</el-button>
-              <el-button @click="resetForm">����</el-button>
+              <el-button type="primary" @click="saveResume">保存简历</el-button>
+              <el-button @click="resetForm">重置</el-button>
             </el-form-item>
           </el-form>
           
           <div v-else class="empty-resume">
-            <p>�봴��һ���¼�����ʼ�༭</p>
-            <el-button type="primary" @click="createNewResume">�½�����</el-button>
+            <p>请创建一份新简历开始编辑</p>
+            <el-button type="primary" @click="createNewResume">新建简历</el-button>
           </div>
         </div>
       </div>
     </div>
   </div>
-  </div>
-
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue'
 
 export default {
   name: 'EditResume',
-  components: {},
+  components: {
+    AppHeader
+  },
   data() {
     return {
       activeNav: 'resume',
-      resumeList: [], // �û������м����б�
-      selectedResumeId: null, // ��ǰѡ�еļ���ID
-      selectedResume: null, // ��ǰѡ�еļ�������
+      resumeList: [], // 用户的所有简历列表
+      selectedResumeId: null, // 当前选中的简历ID
+      selectedResume: null, // 当前选中的简历对象
       resumeForm: {
-        name: '�����ĸ��˼���',
+        name: '张三的个人简历',
         basicInfo: {
-          name: '����',
-          gender: '��',
+          name: '张三',
+          gender: '男',
           age: 28,
-          location: ['�й�', '����', '������'],
+          location: ['中国', '北京', '北京市'],
           phone: '13800138000',
           email: 'zhangsan@example.com'
         },
         education: [
           {
-            school: '������ѧ',
-            major: '�������ѧ�뼼��',
-            degree: '����',
+            school: '北京大学',
+            major: '计算机科学与技术',
+            degree: '本科',
             startDate: '2010-09',
             endDate: '2014-06',
-            description: '���޿γ�: ���ݽṹ���㷨������ϵͳ������������'
+            description: '主修课程: 数据结构、算法、操作系统、计算机网络等'
           }
         ],
         experience: [
           {
-            company: '�ֽ�����',
-            position: '�߼�ǰ�˿�������ʦ',
+            company: '字节跳动',
+            position: '高级前端开发工程师',
             startDate: '2018-07',
-            endDate: '����',
-            description: '����˾���Ĳ�Ʒ��ǰ�˿���������ʹ��Vue.js���'
+            endDate: '至今',
+            description: '负责公司核心产品的前端开发工作，使用Vue.js框架'
           }
         ],
         projects: [
           {
-            name: '��Ƹ��վǰ���ع�',
-            role: 'ǰ�˸�����',
+            name: '招聘网站前端重构',
+            role: '前端负责人',
             time: '2020-03 - 2020-08',
-            description: '�����Ŷ������Ƹ��վǰ���ع���ʹ��Vue.js + Element UI'
+            description: '带领团队完成招聘网站前端重构，使用Vue.js + Element UI'
           }
         ]
       },
       cityOptions: [
         {
-          value: '�й�',
-          label: '�й�',
+          value: '中国',
+          label: '中国',
           children: [
             {
-              value: '����',
-              label: '����',
+              value: '北京',
+              label: '北京',
               children: [
-                { value: '������', label: '������' }
+                { value: '北京市', label: '北京市' }
               ]
             },
             {
-              value: '�Ϻ�',
-              label: '�Ϻ�',
+              value: '上海',
+              label: '上海',
               children: [
-                { value: '�Ϻ���', label: '�Ϻ���' }
+                { value: '上海市', label: '上海市' }
               ]
             }
           ]
@@ -324,7 +325,7 @@ export default {
     }
   },
   mounted() {
-    // ҳ�����ʱ��ȡ�û������м���
+    // 页面加载时获取用户的所有简历
     this.loadResumeList();
   },
   methods: {
@@ -334,11 +335,11 @@ export default {
       }
     },
     
-    // �����û������м���
+    // 加载用户的所有简历
     loadResumeList() {
       const currentUser = JSON.parse(sessionStorage.getItem('user'));
       if (!currentUser) {
-        this.$message.warning('���ȵ�¼');
+        this.$message.warning('请先登录');
         return;
       }
       
@@ -347,26 +348,26 @@ export default {
           if (response.data.code === 200) {
             this.resumeList = response.data.data;
             if (this.resumeList.length > 0) {
-              // Ĭ��ѡ�е�һ������
+              // 默认选中第一个简历
               this.selectedResumeId = this.resumeList[0].id;
               this.loadResume(this.selectedResumeId);
             }
           } else {
-            this.$message.error('��ȡ�����б�ʧ��: ' + response.data.msg);
+            this.$message.error('获取简历列表失败: ' + response.data.msg);
           }
         })
         .catch(error => {
-          console.error('��ȡ�����б�ʧ��:', error);
-          this.$message.error('��ȡ�����б�ʧ��');
+          console.error('获取简历列表失败:', error);
+          this.$message.error('获取简历列表失败');
         });
     },
     
-    // ����ѡ�еļ���
+    // 加载选中的简历
     loadResume(resumeId) {
       const resume = this.resumeList.find(item => item.id === resumeId);
       if (resume) {
         this.selectedResume = resume;
-        // ������������
+        // 解析简历数据
         this.resumeForm.name = resume.name;
         this.resumeForm.basicInfo = resume.basicInfo ? JSON.parse(resume.basicInfo) : {};
         this.resumeForm.education = resume.education ? JSON.parse(resume.education) : [];
@@ -375,18 +376,18 @@ export default {
       }
     },
     
-    // �����¼���
+    // 创建新简历
     createNewResume() {
       const currentUser = JSON.parse(sessionStorage.getItem('user'));
       if (!currentUser) {
-        this.$message.warning('���ȵ�¼');
+        this.$message.warning('请先登录');
         return;
       }
       
-      // ����һ���յļ�������
+      // 创建一个空的简历对象
       const newResume = {
         userId: currentUser.id,
-        name: '�¼���',
+        name: '新简历',
         basicInfo: JSON.stringify({
           name: '',
           gender: '',
@@ -403,24 +404,24 @@ export default {
       this.$axios.post(`${this.$apiBaseUrl}/resume/save`, newResume)
         .then(response => {
           if (response.data.code === 200) {
-            this.$message.success('�¼��������ɹ�');
-            // ���¼��ؼ����б�
+            this.$message.success('新简历创建成功');
+            // 重新加载简历列表
             this.loadResumeList();
           } else {
-            this.$message.error('�����¼���ʧ��: ' + response.data.msg);
+            this.$message.error('创建新简历失败: ' + response.data.msg);
           }
         })
         .catch(error => {
-          console.error('�����¼���ʧ��:', error);
-          this.$message.error('�����¼���ʧ��');
+          console.error('创建新简历失败:', error);
+          this.$message.error('创建新简历失败');
         });
     },
     
-    // ����Ĭ�ϼ���
+    // 设置默认简历
     setDefaultResume() {
       const currentUser = JSON.parse(sessionStorage.getItem('user'));
       if (!currentUser || !this.selectedResume) {
-        this.$message.warning('����ѡ�����');
+        this.$message.warning('请先选择简历');
         return;
       }
       
@@ -432,50 +433,50 @@ export default {
       })
         .then(response => {
           if (response.data.code === 200) {
-            this.$message.success('Ĭ�ϼ������óɹ�');
-            // ���¼��ؼ����б�
+            this.$message.success('默认简历设置成功');
+            // 重新加载简历列表
             this.loadResumeList();
           } else {
-            this.$message.error('����Ĭ�ϼ���ʧ��: ' + response.data.msg);
+            this.$message.error('设置默认简历失败: ' + response.data.msg);
           }
         })
         .catch(error => {
-          console.error('����Ĭ�ϼ���ʧ��:', error);
-          this.$message.error('����Ĭ�ϼ���ʧ��');
+          console.error('设置默认简历失败:', error);
+          this.$message.error('设置默认简历失败');
         });
     },
     
-    // ɾ������
+    // 删除简历
     deleteResume() {
       if (!this.selectedResume) {
-        this.$message.warning('����ѡ�����');
+        this.$message.warning('请先选择简历');
         return;
       }
       
-      this.$confirm('ȷ��Ҫɾ����ݼ�����?', '��ʾ', {
-        confirmButtonText: 'ȷ��',
-        cancelButtonText: 'ȡ��',
+      this.$confirm('确定要删除这份简历吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.$axios.delete(`${this.$apiBaseUrl}/resume/${this.selectedResume.id}`)
           .then(response => {
             if (response.data.code === 200) {
-              this.$message.success('����ɾ���ɹ�');
-              // ���¼��ؼ����б�
+              this.$message.success('简历删除成功');
+              // 重新加载简历列表
               this.loadResumeList();
-              // ��յ�ǰѡ��
+              // 清空当前选中
               this.selectedResume = null;
               this.selectedResumeId = null;
             } else {
-              this.$message.error('ɾ������ʧ��: ' + response.data.msg);
+              this.$message.error('删除简历失败: ' + response.data.msg);
             }
           })
           .catch(error => {
-            console.error('ɾ������ʧ��:', error);
-            this.$message.error('ɾ������ʧ��');
+            console.error('删除简历失败:', error);
+            this.$message.error('删除简历失败');
           });
       }).catch(() => {
-        this.$message.info('��ȡ��ɾ��');
+        this.$message.info('已取消删除');
       });
     },
     
@@ -493,7 +494,7 @@ export default {
       if (this.resumeForm.education.length > 1) {
         this.resumeForm.education.splice(index, 1);
       } else {
-        this.$message.warning('���ٱ���һ����������');
+        this.$message.warning('至少保留一条教育经历');
       }
     },
     addExperience() {
@@ -509,7 +510,7 @@ export default {
       if (this.resumeForm.experience.length > 1) {
         this.resumeForm.experience.splice(index, 1);
       } else {
-        this.$message.warning('���ٱ���һ����������');
+        this.$message.warning('至少保留一条工作经历');
       }
     },
     addProject() {
@@ -524,17 +525,17 @@ export default {
       this.resumeForm.projects.splice(index, 1);
     },
     saveResume() {
-      // ��sessionStorage��ȡ��ǰ�û���Ϣ
+      // 从sessionStorage获取当前用户信息
       const currentUser = JSON.parse(sessionStorage.getItem('user'));
       if (!currentUser) {
         this.$message({
-          message: '���ȵ�¼',
+          message: '请先登录',
           type: 'warning'
         });
         return;
       }
 
-      // ����Ҫ���͵���˵ļ�������
+      // 构造要发送到后端的简历对象
       const resume = {
         id: this.selectedResume ? this.selectedResume.id : null,
         userId: currentUser.id,
@@ -545,31 +546,31 @@ export default {
         projects: JSON.stringify(this.resumeForm.projects)
       };
 
-      // ���ú��API�������
+      // 调用后端API保存简历
       this.$axios.post(`${this.$apiBaseUrl}/resume/save`, resume)
         .then(response => {
           if (response.data.code === 200) {
-            this.$message.success('��������ɹ�');
-            // ���¼��ؼ����б�
+            this.$message.success('简历保存成功');
+            // 重新加载简历列表
             this.loadResumeList();
           } else {
-            this.$message.error('��������ʧ��: ' + response.data.msg);
+            this.$message.error('简历保存失败: ' + response.data.msg);
           }
         })
         .catch(error => {
-          console.error('��������ʧ��:', error);
-          this.$message.error('��������ʧ��');
+          console.error('简历保存失败:', error);
+          this.$message.error('简历保存失败');
         });
     },
     resetForm() {
-      this.$confirm('ȷ��Ҫ��������������?', '��ʾ', {
-        confirmButtonText: 'ȷ��',
-        cancelButtonText: 'ȡ��',
+      this.$confirm('确定要重置所有内容吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // ���ñ���߼�
+        // 重置表单逻辑
         this.resumeForm = {
-          name: '�¼���',
+          name: '新简历',
           basicInfo: {
             name: '',
             gender: '',
@@ -582,16 +583,16 @@ export default {
           experience: [],
           projects: []
         };
-        this.$message.info('���������');
+        this.$message.info('表单已重置');
       }).catch(() => {
-        this.$message.info('��ȡ������');
+        this.$message.info('已取消重置');
       });
     },
     goToHome() {
       const userStr = sessionStorage.getItem('user')
       const user = userStr ? JSON.parse(userStr) : null
 
-      if (user && user.role === 1) {  // HR��ɫ
+      if (user && user.role === 1) {  // HR角色
         this.$router.push('/HrHomePage')
       } else {
         this.$router.push('/HomePage')
@@ -608,7 +609,7 @@ export default {
       this.$router.push('/company');
     },
     /**
-     * ��ת����Ϣ����
+     * 跳转到消息中心
      */
     goToMessageCenter() {
       this.$router.push({
@@ -616,20 +617,20 @@ export default {
       });
     },
     logout() {
-      this.$confirm('ȷ��Ҫ�˳���¼��?', '��ʾ', {
-        confirmButtonText: 'ȷ��',
-        cancelButtonText: 'ȡ��',
+      this.$confirm('确定要退出登录吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.$router.push('/');
         this.$message({
           type: 'success',
-          message: '�˳��ɹ�!'
+          message: '退出成功!'
         });
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '��ȡ������'
+          message: '已取消操作'
         });
       });
     }
@@ -642,16 +643,6 @@ export default {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.header {
-  background: linear-gradient(135deg, #3498db, #2c3e50);
-  color: white;
-  padding: 15px 0;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .main-content {

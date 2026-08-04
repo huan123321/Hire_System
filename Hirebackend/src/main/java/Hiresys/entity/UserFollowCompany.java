@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 用户关注公司关系�?
+ * 用户关注公司关系�?
  * </p>
  *
  * @author author

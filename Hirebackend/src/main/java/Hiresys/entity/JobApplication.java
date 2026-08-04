@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 职位申请记录�?
+ * 职位申请记录�?
  * </p>
  *
  * @author author

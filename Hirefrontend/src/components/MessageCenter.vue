@@ -1,18 +1,16 @@
 <template>
-  <div class="app-wrapper">
+  <div class="message-center">
+    <!-- 顶部导航 -->
     <AppHeader />
-<div class="message-center">
-    <!-- �������� -->
-
 
     <div class="container">
       <div class="main-content" v-loading="loading">
-        <!-- ��״??-->
-        <el-empty v-if="conversations.length === 0 && !loading" description="������Ϣ">
-          <el-button type="primary" @click="goBack">����</el-button>
+        <!-- 空状态 -->
+        <el-empty v-if="conversations.length === 0 && !loading" description="暂无消息">
+          <el-button type="primary" @click="goBack">返回</el-button>
         </el-empty>
 
-        <!-- �Ự�б� -->
+        <!-- 会话列表 -->
         <div v-else class="conversation-list">
           <div 
             v-for="conv in conversations" 
@@ -33,7 +31,7 @@
                 <span class="last-time">{{ formatTime(conv.lastMessageTime) }}</span>
               </div>
               <div class="conversation-body">
-                <p class="last-message">{{ conv.lastMessage || '������Ϣ' }}</p>
+                <p class="last-message">{{ conv.lastMessage || '暂无消息' }}</p>
               </div>
             </div>
             <div class="conversation-action">
@@ -44,15 +42,16 @@
       </div>
     </div>
   </div>
-  </div>
-
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue'
 
 export default {
   name: 'MessageCenter',
-  components: {},
+  components: {
+    AppHeader
+  },
   data() {
     return {
       loading: false,
@@ -61,29 +60,29 @@ export default {
     };
   },
   created() {
-    // ��ȡ��ǰ�û���Ϣ
+    // 获取当前用户信息
     const userStr = sessionStorage.getItem('user');
     if (userStr) {
       this.currentUser = JSON.parse(userStr);
     }
     
-    // ���ػỰ�б�
+    // 加载会话列表
     this.loadConversations();
   },
   methods: {
     /**
-     * ���ػỰ�б�
+     * 加载会话列表
      */
     async loadConversations() {
       try {
         this.loading = true;
         
         if (!this.currentUser) {
-          this.$message.error('���ȵ�¼');
+          this.$message.error('请先登录');
           return;
         }
 
-        // ���ú�˽ӿڻ�ȡ�Ự�б�
+        // 调用后端接口获取会话列表
         const response = await this.$axios.get(
           this.$apiBaseUrl + '/chat/conversations',
           {
@@ -95,14 +94,14 @@ export default {
         
         if (response.data.code === 200) {
           this.conversations = response.data.data || [];
-          console.log('�Ự�б���سɹ�:', this.conversations);
+          console.log('会话列表加载成功:', this.conversations);
         } else {
-          this.$message.error(response.data.msg || '���ػỰ�б�ʧ��');
+          this.$message.error(response.data.msg || '加载会话列表失败');
           this.conversations = [];
         }
       } catch (error) {
-        console.error('���ػỰ�б�ʧ��:', error);
-        this.$message.error('���ػỰ�б�ʧ�ܣ����Ժ�����');
+        console.error('加载会话列表失败:', error);
+        this.$message.error('加载会话列表失败，请稍后重试');
         this.conversations = [];
       } finally {
         this.loading = false;
@@ -110,7 +109,7 @@ export default {
     },
 
     /**
-     * �����촰��
+     * 打开聊天窗口
      */
     openChat(conv) {
       this.$router.push({
@@ -124,7 +123,7 @@ export default {
     },
 
     /**
-     * ��ʽ��ʱ??
+     * 格式化时间
      */
     formatTime(timeStr) {
       if (!timeStr) return '';
@@ -138,13 +137,13 @@ export default {
       const days = Math.floor(diff / 86400000);
       
       if (minutes < 1) {
-        return '�ո�';
+        return '刚刚';
       } else if (minutes < 60) {
-        return `${minutes}����ǰ`;
+        return `${minutes}分钟前`;
       } else if (hours < 24) {
-        return `${hours}Сʱǰ`;
+        return `${hours}小时前`;
       } else if (days < 7) {
-        return `${days}��ǰ`;
+        return `${days}天前`;
       } else {
         return date.toLocaleDateString('zh-CN', {
           month: '2-digit',
@@ -156,7 +155,7 @@ export default {
     },
 
     /**
-     * ������һ??
+     * 返回上一页
      */
     goBack() {
       this.$router.back();
@@ -169,35 +168,6 @@ export default {
 .message-center {
   min-height: 100vh;
   background: #f5f7fa;
-}
-
-.header {
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 70px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: #409EFF;
 }
 
 .main-content {

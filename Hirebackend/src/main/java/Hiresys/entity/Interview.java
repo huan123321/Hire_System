@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 面试安排�?
+ * 面试安排�?
  * </p>
  *
  * @author author
@@ -80,7 +80,7 @@ public class Interview implements Serializable {
     @TableField("update_time")
     private LocalDateTime updateTime;
 
-    // ========== 非数据库字段，用于前端展�?==========
+    // ========== 非数据库字段，用于前端展�?==========
     
     @TableField(exist = false)
     private String jobTitle;

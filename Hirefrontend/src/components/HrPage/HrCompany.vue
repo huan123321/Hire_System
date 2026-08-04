@@ -726,38 +726,6 @@ export default {
   padding: 0 15px;
 }
 
-.header {
-  background: #00C2A1;
-  color: white;
-  padding: 15px 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.logo i {
-  margin-right: 10px;
-  font-size: 28px;
-}
-
-.nav-menu {
-  display: flex;
-  gap: 10px;
-}
-
 .page-header {
   background: white;
   padding: 30px;
@@ -1141,19 +1109,6 @@ export default {
   margin-bottom: 30px;
 }
 
-.footer {
-  text-align: center;
-  padding: 30px 0;
-  margin-top: 40px;
-  color: #909399;
-  border-top: 2px solid rgba(102, 126, 234, 0.1);
-  background: white;
-}
-
-.footer-content {
-  font-size: 14px;
-}
-
 @media (max-width: 1024px) {
   .stats-section {
     grid-template-columns: repeat(2, 1fr);
@@ -1167,16 +1122,6 @@ export default {
 @media (max-width: 768px) {
   .stats-section {
     grid-template-columns: 1fr;
-  }
-  
-  .header-content {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .nav-menu {
-    flex-wrap: wrap;
-    justify-content: center;
   }
   
   .info-row {

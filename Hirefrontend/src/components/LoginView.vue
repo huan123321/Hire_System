@@ -157,43 +157,53 @@ export default {
           //valid 成功为 true，失败为 false
           this.loading = true;
               
-          // 构建登录请求参数（所有参数都放在请求体中）
+          // 构建登录请求参数
           const loginData = {
             username: this.loginForm.username,
             password: this.loginForm.password,
-            role: this.loginForm.role,
-            captchaCode: this.loginForm.captchaCode,  // ✅ 验证码放在请求体
-            sessionId: this.sessionId                  // ✅ sessionId 放在请求体
+            role: this.loginForm.role
           };
               
-          // 发送登录请求
+          // 发送登录请求，携带验证码参数
           this.$axios.post(
-            this.$apiBaseUrl + '/user/login',
+            this.$apiBaseUrl + '/user/login?captchaCode=' + encodeURIComponent(this.loginForm.captchaCode) + 
+            '&sessionId=' + encodeURIComponent(this.sessionId),
             loginData
-          ).then(res => {
-            const data = res.data;
+          ).then(res=>res.data).then(res=>{
             this.loading = false;
-            if (data.code === 200) {
-              const user = data.data;
-              sessionStorage.setItem('user', JSON.stringify(user));
-              this.$message.success('登录成功');
-              if (user.role === 1) {
-                this.$router.push('/HrHomePage');
+            if(res.success){ //
+              //存储
+              sessionStorage.setItem('user',JSON.stringify(res.user)); // 修改存储内容
+              // 根据后端返回的角色信息进行跳转
+              if (res.redirect) {
+                this.$router.push(res.redirect);
               } else {
-                this.$router.push('/HomePage');
-              }
-            } else {
-              if (data.message && data.message.includes('验证码')) {
+                // 默认跳转到主页
+
+                  const userStr = sessionStorage.getItem('user')
+                  const user = userStr ? JSON.parse(userStr) : null
+
+                  if (user && user.role === 1) {  // HR角色
+                    this.$router.push('/HrHomePage')
+                  } else {
+                    this.$router.push('/HomePage')
+                  }
+                }
+
+              this.$message.success('登录成功');
+            }else{
+              // 如果验证码错误，刷新验证码
+              if (res.message && res.message.includes('验证码')) {
                 this.refreshCaptcha();
-                this.loginForm.captchaCode = '';
+                this.loginForm.captchaCode = ''; // 清空验证码输入框
               }
-              this.$message.error(data.message || '登录失败');
+              this.$message.error(res.message || '登录失败，用户或密码错误！'); // 修改错误信息
               return false;
             }
           }).catch(error => {
             this.loading = false;
             console.error('Login error:', error);
-            this.$message.error('登录请求失败：' + (error.message || '网络错误'));
+            this.$message.error('登录请求失败：' + (error.response?.data?.message || error.message || '网络错误'));
           })
     
         }
@@ -214,11 +224,11 @@ export default {
   background-image: linear-gradient(to bottom right, #FC466B, #3F5EF8);
   overflow: hidden;*/
   /*背景图*/
-  background: linear-gradient(135deg, #E6F9F5 0%, #C8ECE4 100%);
+  background: url("../assets/e44dc62f-007d-47b0-b1ae-94ce94105790.png");
   width: 100%;
   height: 100%;
   position: fixed;
-  
+  background-size: 100% 100%;
 }
 
 #building {

@@ -4,22 +4,21 @@
       <div class="header-content">
         <div class="logo" @click="goToHome">
           <i class="fas fa-briefcase"></i>
-          <span>网上招聘系统</span>
+          <span>Hire<span class="logo-dot">•</span></span>
         </div>
         <div class="nav-menu">
-          <el-button type="primary" round @click="goToHome">首页</el-button>
-          <el-button type="primary" round @click="goToPosition">职位</el-button>
-          <el-button type="primary" round @click="goToCompany">公司</el-button>
-          <el-button type="primary" round @click="goToInterviewManagement">
-            <i class="fas fa-handshake"></i>
-            面试安排
+          <el-button type="text" @click="goToHome" :class="{ 'nav-active': isActive('/HomePage') || isActive('/HrHomePage') }">首页</el-button>
+          <el-button type="text" @click="goToPosition" :class="{ 'nav-active': isActive('/Position') }">职位</el-button>
+          <el-button type="text" @click="goToCompany" :class="{ 'nav-active': isActive('/ComPany') }">公司</el-button>
+          <el-button type="text" @click="goToInterviewManagement" :class="{ 'nav-active': isActive('/InterviewManagement') }">面试安排</el-button>
+          <el-button type="text" @click="goToMessageCenter" :class="{ 'nav-active': isActive('/MessageCenter') }">消息</el-button>
+        </div>
+        <div class="user-area">
+          <el-button type="text" class="user-link" @click="goToPerson">
+            <i class="el-icon-user"></i>
+            {{ nickname }}
           </el-button>
-          <el-button type="primary" round @click="goToMessageCenter">
-            <i class="fas fa-envelope"></i>
-            消息
-          </el-button>
-          <el-button type="primary" round @click="goToPerson">个人中心</el-button>
-          <el-button type="text" @click="handleLogout">退出登录</el-button>
+          <el-button type="text" class="logout-link" @click="handleLogout">退出登录</el-button>
         </div>
       </div>
     </div>
@@ -29,39 +28,42 @@
 <script>
 export default {
   name: 'AppHeader',
+  data() {
+    return {
+      nickname: ''
+    };
+  },
+  created() {
+    const userStr = sessionStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        this.nickname = user.nickname || user.username || '用户';
+      } catch (e) {
+        this.nickname = '用户';
+      }
+    }
+  },
   methods: {
+    isActive(path) {
+      return this.$route.path === path || this.$route.path.startsWith(path);
+    },
     goToHome() {
       const userStr = sessionStorage.getItem('user')
       const user = userStr ? JSON.parse(userStr) : null
       const targetPath = (user && user.role === 1) ? '/HrHomePage' : '/HomePage'
-
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath)
       }
     },
-
     goToPosition() {
-      if (this.$route.path !== '/position') {
-        const userStr = sessionStorage.getItem('user')
-        const user = userStr ? JSON.parse(userStr) : null
-        const targetPath = (user && user.role === 1) ? '/HrPosition' : '/Position'
-
-        if (this.$route.path !== targetPath) {
-          this.$router.push(targetPath)
-        }
+      if (this.$route.path !== '/Position') {
+        this.$router.push('/Position');
       }
     },
     goToCompany() {
       if (this.$route.path !== '/ComPany') {
-
-        const userStr = sessionStorage.getItem('user')
-        const user = userStr ? JSON.parse(userStr) : null
-        const targetPath = (user && user.role === 1) ? '/HrCompany' : '/Company'
-
-        if (this.$route.path !== targetPath) {
-          this.$router.push(targetPath)
-        }
-
+        this.$router.push('/ComPany');
       }
     },
     goToInterviewManagement() {
@@ -75,14 +77,11 @@ export default {
       }
     },
     goToPerson() {
-      if (this.$route.path !== '/PerSon') {
-        const userStr = sessionStorage.getItem('user')
-        const user = userStr ? JSON.parse(userStr) : null
-        const targetPath = (user && user.role === 1) ? '/HrPerson' : '/Person'
-
-        if (this.$route.path !== targetPath) {
-          this.$router.push(targetPath)
-        }
+      const userStr = sessionStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      const target = (user && user.role === 1) ? '/HrPerson' : '/PerSon';
+      if (this.$route.path !== target) {
+        this.$router.push(target);
       }
     },
     handleLogout() {
@@ -91,14 +90,10 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 清除用户信息
         sessionStorage.removeItem('user');
-        
         this.$message.success('已退出登录');
         this.$router.push('/');
-      }).catch(() => {
-        // 用户取消
-      });
+      }).catch(() => {});
     }
   }
 }
@@ -106,14 +101,13 @@ export default {
 
 <style scoped lang="scss">
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  color: #333;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
   z-index: 1000;
-  backdrop-filter: blur(10px);
-  padding: 15px 0;
+  padding: 10px 0;
 
   .container {
     max-width: 1200px;
@@ -125,7 +119,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: auto;
+    height: 40px;
   }
 
   .logo {
@@ -133,32 +127,47 @@ export default {
     align-items: center;
     gap: 10px;
     font-size: 24px;
-    font-weight: bold;
-    color: #fff;
+    font-weight: 800;
+    color: #00C2A1;
     cursor: pointer;
-    transition: opacity 0.3s;
+    margin-right: 40px;
 
-    &:hover {
-      opacity: 0.8;
-    }
-
-    i {
-      font-size: 28px;
-    }
+    i { font-size: 26px; }
+    .logo-dot { color: #FF8A00; }
   }
 
   .nav-menu {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 4px;
+    flex: 1;
 
     .el-button {
-      transition: all 0.3s;
-      
-      &:hover {
-        transform: translateY(-2px);
-      }
+      padding: 8px 14px;
+      font-size: 15px;
+      color: #333;
+      font-weight: 400;
+
+      &:hover { color: #00C2A1; }
+      &.nav-active { color: #00C2A1; font-weight: 600; }
     }
+  }
+
+  .user-area {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .user-link {
+      color: #00C2A1;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .logout-link { color: #999; }
+    .logout-link:hover { color: #FF5252; }
   }
 }
 </style>
+

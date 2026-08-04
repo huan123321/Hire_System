@@ -70,7 +70,8 @@ public class FavoriteJobController {
                 item.put("jobTitle", job.getTitle());
                 item.put("companyName", job.getCompanyName());
                 item.put("salary", job.getSalary());
-                item.put("createTime", fav.getCreateTime().toString());
+                item.put("city", job.getCity());
+                item.put("createTime", fav.getCreateTime() != null ? fav.getCreateTime().toString() : "");
                 result.add(item);
             }
         }

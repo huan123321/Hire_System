@@ -1,5 +1,8 @@
 <template>
-  <div class="chat-box">
+  <div class="chat-box" :class="{ 'is-page-mode': isPageMode }">
+    <!-- 独立路由页面时显示统一顶部导航 -->
+    <AppHeader v-if="isPageMode" />
+
     <!-- 聊天头部 -->
     <div class="chat-header">
       <div class="header-info">
@@ -61,10 +64,12 @@
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue'
 import chatWebSocket from '@/utils/websocket';
 
 export default {
   name: 'ChatBox',
+  components: { AppHeader },
   props: {
     // 聊天对象ID (公司ID或用户ID)
     partnerId: {
@@ -94,6 +99,11 @@ export default {
       connectionStatus: chatWebSocket.isConnected() ? 'connected' : 'disconnected',
       connectionTimeout: null
     };
+  },
+  computed: {
+    isPageMode() {
+      return this.$route.name === 'Chat';
+    }
   },
   created() {
     // 获取当前用户信息
@@ -402,6 +412,13 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
+.chat-box.is-page-mode {
+  height: calc(100vh - 120px);
+  max-width: 900px;
+  margin: 20px auto;
+  border-radius: 12px;
+}
+
 .chat-header {
   display: flex;
   justify-content: space-between;
@@ -411,6 +428,10 @@ export default {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 8px 8px 0 0;
+}
+
+.chat-box.is-page-mode .chat-header {
+  border-radius: 12px 12px 0 0;
 }
 
 .header-info {
