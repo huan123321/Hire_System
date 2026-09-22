@@ -25,3 +25,15 @@ Thumbs.db
 # 临时文件
 *.tmp
 *.bak
+
+# 求职材料（个人简历、证件照），含个人信息，禁止提交到公开仓库
+docs/简历/
+docs/resume.html
+docs/*.pdf
+photo.jpg
+
+# 敏感配置（数据库密码等），禁止提交
+**/application.yml
+**/application-*.yml
+.env
+*.env
