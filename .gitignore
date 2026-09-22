@@ -31,6 +31,13 @@ docs/简历/
 docs/resume.html
 docs/*.pdf
 photo.jpg
+面试*.md
+*讲稿*.md
+JMeter*.md
+stress-test/
+
+# 运行时上传目录（业务数据，不入库）
+uploads/
 
 # 敏感配置（数据库密码等），禁止提交
 **/application.yml
