@@ -26,14 +26,15 @@ Thumbs.db
 *.tmp
 *.bak
 
-# 求职材料（个人简历、证件照），含个人信息，禁止提交到公开仓库
+# 求职材料（个人简历、面试准备材料），含个人信息，禁止提交到公开仓库
 docs/简历/
+docs/ai-notes/
 docs/resume.html
 docs/*.pdf
 photo.jpg
-面试*.md
+*面试*.md
 *讲稿*.md
-JMeter*.md
+*JMeter*.md
 stress-test/
 
 # 运行时上传目录（业务数据，不入库）

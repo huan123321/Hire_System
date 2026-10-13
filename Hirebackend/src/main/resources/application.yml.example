@@ -1,0 +1,92 @@
+# ============================================================
+# Hire System 后端配置模板
+# ------------------------------------------------------------
+# 使用方式：
+#   cp application.yml.example application.yml
+#   然后按需修改下面的数据库/Redis 配置
+#
+# 注意：application.yml 已被 .gitignore 排除（含密码），
+#      请勿把真实密码提交到仓库；生产环境建议用环境变量注入。
+# ============================================================
+
+server:
+  port: ${SERVER_PORT:8094}
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  datasource:
+    # 数据库连接（Docker Compose 部署时 host 用 mysql，本机开发用 localhost）
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:hire_system}?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:change_me}          # ← 必改：你的 MySQL 密码
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  servlet:
+    multipart:
+      max-file-size: 10MB      # 头像上传大小上限
+      max-request-size: 11MB
+  sql:
+    init:
+      # 保持 never：表结构由 schema.sql 手动/Docker 初始化，
+      # 不让应用启动时自动执行（避免误操作生产库）
+      mode: never
+
+# DeepSeek API 配置（AI 助手功能，未配置时该功能优雅降级）
+deepseek:
+  api-key: ${DEEPSEEK_API_KEY:}
+
+app:
+  cache:
+    # 缓存开关：false = 无缓存基线（@Cacheable 全部穿透直查 DB），true = Redis 缓存
+    # 用于 A/B 对比压测，详见 stress-test 目录
+    enabled: ${APP_CACHE_ENABLED:true}
+  auth:
+    # Token 签名密钥（HMAC-SHA256）。生产环境必须通过环境变量覆盖！
+    secret: ${APP_AUTH_SECRET:hire-system-dev-secret-change-me}
+  upload:
+    # 头像上传保存目录
+    dir: ${APP_UPLOAD_DIR:./uploads/avatars}
+
+# MyBatis Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    # 生产/压测环境务必保持注释关闭！
+    # StdOutImpl 会把每条 SQL 打印到控制台，高并发下日志 I/O 会成为吞吐瓶颈（实测差约 9 倍）
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# Spring Boot Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# SpringDoc OpenAPI 配置（接口文档：/swagger-ui.html）
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  packages-to-scan: Hiresys.controller
