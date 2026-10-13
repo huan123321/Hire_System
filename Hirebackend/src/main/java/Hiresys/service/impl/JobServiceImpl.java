@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -47,17 +49,37 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     private CompanyMapper companyMapper;
 
     /**
-     * 按公司名填充职位对应的公司头像（无匹配公司则为空）
+     * 按公司名批量填充职位对应的公司头像。
+     * <p>
+     * 优化前：循环内逐个 {@code selectOne} —— 典型的 N+1（一页 10 条职位 = 10 次查询）；
+     * 优化后：先去重收集公司名，再用一次 {@code IN} 批量查询 + Map 映射回填，
+     * 查询次数固定为 1，与职位条数无关。
      */
     private void fillCompanyLogo(List<Job> jobs) {
         if (jobs == null || jobs.isEmpty()) return;
+
+        // 1. 收集去重后的公司名（跳过空值）
+        Set<String> companyNames = jobs.stream()
+                .map(Job::getCompanyName)
+                .filter(name -> name != null && !name.isEmpty())
+                .collect(Collectors.toSet());
+        if (companyNames.isEmpty()) return;
+
+        // 2. 一次批量查询（替代原先的 N 次 selectOne）
+        List<Company> companies = companyMapper.selectList(
+                new QueryWrapper<Company>().in("name", companyNames));
+        if (companies == null || companies.isEmpty()) return;
+
+        // 3. 建立 公司名 -> logo 映射
+        Map<String, String> logoMap = companies.stream()
+                .filter(c -> c.getName() != null && c.getLogo() != null && !c.getLogo().isEmpty())
+                .collect(Collectors.toMap(Company::getName, Company::getLogo, (a, b) -> a));
+
+        // 4. 回填到职位
         for (Job job : jobs) {
-            if (job.getCompanyName() == null || job.getCompanyName().isEmpty()) continue;
-            Company company = companyMapper.selectOne(new QueryWrapper<Company>()
-                    .eq("name", job.getCompanyName())
-                    .last("LIMIT 1"));
-            if (company != null) {
-                job.setCompanyLogo(company.getLogo());
+            String logo = logoMap.get(job.getCompanyName());
+            if (logo != null) {
+                job.setCompanyLogo(logo);
             }
         }
     }
