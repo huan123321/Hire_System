@@ -33,6 +33,14 @@ public interface IChatService {
     Integer getUnreadCount(Long receiverId, String receiverType);
 
     /**
+     * 获取指定发送者对接收者的未读消息数量（会话级未读）
+     * @param receiverId 接收者ID
+     * @param senderId 发送者ID
+     * @return 未读消息数量
+     */
+    Integer getUnreadCountWithSender(Long receiverId, Integer senderId);
+
+    /**
      * 标记消息为已读
      * @param receiverId 接收者ID
      * @param receiverType 接收者类型

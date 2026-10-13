@@ -39,6 +39,8 @@ public class Company implements Serializable {
 
     private String industry;
 
+    private String logo;
+
     private String address;
 
 

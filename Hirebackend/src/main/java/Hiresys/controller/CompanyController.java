@@ -2,7 +2,10 @@ package Hiresys.controller;
 
 import Hiresys.dto.PageResult;
 import Hiresys.dto.Result;
+import Hiresys.dto.UserDTO;
+import Hiresys.converter.UserConverter;
 import Hiresys.entity.Company;
+import Hiresys.entity.User;
 import Hiresys.service.ICompanyService;
 import Hiresys.service.ICompanyViewLogService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -37,8 +40,9 @@ public class CompanyController {
     @Operation(summary = "按条件筛选公司")
     @GetMapping("/filter")
     public Result<List<Company>> filter(@RequestParam(required = false) String scale,
-                                        @RequestParam(required = false) String industry) {
-        List<Company> companies = companyService.filterCompanies(scale, industry);
+                                        @RequestParam(required = false) String industry,
+                                        @RequestParam(required = false) String location) {
+        List<Company> companies = companyService.filterCompanies(scale, industry, location);
         return Result.ok(companies);
     }
 
@@ -47,8 +51,7 @@ public class CompanyController {
     public Result<Company> detail(@PathVariable Long id) {
         Company company = companyService.getById(id);
         if (company != null) {
-            return Result.ok(company);
-        }
+            return Result.ok(company);        }
         return Result.fail(404, "公司不存在");
     }
 
@@ -81,6 +84,16 @@ public class CompanyController {
     public Result<Long> getViewCount(@PathVariable Long companyId) {
         Long viewCount = companyViewLogService.getViewCount(companyId);
         return Result.ok(viewCount);
+    }
+
+    @Operation(summary = "获取公司的 HR 用户（求职者与 HR 在线沟通用）")
+    @GetMapping("/{companyId}/hr")
+    public Result<UserDTO> getCompanyHr(@PathVariable Long companyId) {
+        User hr = companyService.getCompanyHr(companyId);
+        if (hr == null) {
+            return Result.fail(404, "该公司暂无在线 HR");
+        }
+        return Result.ok(UserConverter.toDTO(hr));
     }
 
     @Operation(summary = "记录公司浏览")

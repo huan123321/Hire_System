@@ -53,40 +53,44 @@ public class ChatController {
     public Result<List<Map<String, Object>>> getConversations(@RequestParam Integer userId) {
         List<ChatMessage> conversations = chatService.getConversations(userId);
 
-        List<Map<String, Object>> conversationList = conversations.stream().map(msg -> {
-            Map<String, Object> conv = new HashMap<>();
-
-            Long partnerId;
-            String partnerType;
-            if (msg.getSenderId().equals(userId)) {
-                partnerId = msg.getReceiverId();
-                partnerType = msg.getReceiverType();
-            } else {
-                partnerId = msg.getSenderId().longValue();
-                partnerType = "user";
-            }
-
-            String partnerName = "未知用户";
-            if ("user".equals(partnerType)) {
-                User partner = userMapper.selectById(partnerId.intValue());
-                if (partner != null) {
-                    partnerName = partner.getUsername();
+        List<Map<String, Object>> conversationList = new ArrayList<>();
+        for (ChatMessage msg : conversations) {
+            // 解析对方用户：统一按用户维度（历史 company 消息转该公司 HR 用户）
+            User partner = null;
+            if (msg.getSenderId() != null && msg.getSenderId().equals(userId)) {
+                // 我发送的：对方是 receiver
+                if ("company".equals(msg.getReceiverType())) {
+                    partner = userMapper.selectOne(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<User>()
+                            .eq("role", 1)
+                            .eq("company_id", msg.getReceiverId())
+                            .last("LIMIT 1"));
+                } else {
+                    partner = userMapper.selectById(msg.getReceiverId().intValue());
                 }
-            } else if ("company".equals(partnerType)) {
-                partnerName = "HR";
+            } else {
+                partner = userMapper.selectById(msg.getSenderId());
             }
 
-            Integer unreadCount = chatService.getUnreadCount(userId.longValue(), "user");
+            if (partner == null) {
+                continue; // 无有效对方的会话跳过
+            }
 
-            conv.put("partnerId", partnerId);
-            conv.put("partnerName", partnerName);
-            conv.put("partnerType", partnerType);
+            Map<String, Object> conv = new HashMap<>();
+            conv.put("partnerId", partner.getId());
+            conv.put("partnerName",
+                    partner.getNickname() != null && !partner.getNickname().isEmpty()
+                            ? partner.getNickname()
+                            : (partner.getRealName() != null && !partner.getRealName().isEmpty()
+                                    ? partner.getRealName() : partner.getUsername()));
+            conv.put("partnerType", "user");
             conv.put("lastMessage", msg.getContent());
             conv.put("lastMessageTime", msg.getSendTime());
+            // 会话级未读：该会话对方发给我、我未读的消息数
+            Integer unreadCount = chatService.getUnreadCountWithSender(userId.longValue(), partner.getId());
             conv.put("unreadCount", unreadCount != null ? unreadCount : 0);
 
-            return conv;
-        }).collect(Collectors.toList());
+            conversationList.add(conv);
+        }
 
         return Result.ok("获取成功", conversationList);
     }

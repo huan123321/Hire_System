@@ -48,6 +48,11 @@ public class ChatServiceImpl extends ServiceImpl<ChatMessageMapper, ChatMessage>
     }
 
     @Override
+    public Integer getUnreadCountWithSender(Long receiverId, Integer senderId) {
+        return chatMessageMapper.getUnreadCountWithSender(receiverId, senderId);
+    }
+
+    @Override
     public void markMessagesAsRead(Long receiverId, String receiverType) {
         chatMessageMapper.markMessagesAsRead(receiverId, receiverType);
     }

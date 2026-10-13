@@ -4,6 +4,7 @@ import Hiresys.entity.UserFavoriteJob;
 import Hiresys.exception.BusinessException;
 import Hiresys.mapper.UserFavoriteJobMapper;
 import Hiresys.service.IUserFavoriteJobService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,25 +32,22 @@ public class UserFavoriteJobServiceImpl extends ServiceImpl<UserFavoriteJobMappe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean unfavorite(Integer userId, Long jobId) {
-        return this.lambdaUpdate()
-                .eq(UserFavoriteJob::getUserId, userId)
-                .eq(UserFavoriteJob::getJobId, jobId)
-                .remove();
+        return this.remove(new QueryWrapper<UserFavoriteJob>()
+                .eq("user_id", userId)
+                .eq("job_id", jobId));
     }
 
     @Override
     public boolean isFavorited(Integer userId, Long jobId) {
-        return this.lambdaQuery()
-                .eq(UserFavoriteJob::getUserId, userId)
-                .eq(UserFavoriteJob::getJobId, jobId)
-                .count() > 0;
+        return this.count(new QueryWrapper<UserFavoriteJob>()
+                .eq("user_id", userId)
+                .eq("job_id", jobId)) > 0;
     }
 
     @Override
     public List<Long> getFavoriteJobIds(Integer userId) {
-        return this.lambdaQuery()
-                .eq(UserFavoriteJob::getUserId, userId)
-                .list()
+        return this.list(new QueryWrapper<UserFavoriteJob>()
+                .eq("user_id", userId))
                 .stream()
                 .map(UserFavoriteJob::getJobId)
                 .collect(Collectors.toList());
@@ -57,9 +55,8 @@ public class UserFavoriteJobServiceImpl extends ServiceImpl<UserFavoriteJobMappe
 
     @Override
     public List<UserFavoriteJob> getFavorites(Integer userId) {
-        return this.lambdaQuery()
-                .eq(UserFavoriteJob::getUserId, userId)
-                .orderByDesc(UserFavoriteJob::getCreateTime)
-                .list();
+        return this.list(new QueryWrapper<UserFavoriteJob>()
+                .eq("user_id", userId)
+                .orderByDesc("create_time"));
     }
 }

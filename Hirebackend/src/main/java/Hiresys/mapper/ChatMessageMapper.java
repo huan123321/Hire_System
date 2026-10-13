@@ -42,6 +42,14 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
                           @Param("receiverType") String receiverType);
 
     /**
+     * 获取指定发送者对接收者的未读消息数量（会话级未读）
+     */
+    @Select("SELECT COUNT(*) FROM chat_message WHERE receiver_id = #{receiverId} " +
+            "AND sender_id = #{senderId} AND is_read = 0")
+    Integer getUnreadCountWithSender(@Param("receiverId") Long receiverId,
+                                     @Param("senderId") Integer senderId);
+
+    /**
      * 标记消息为已读
      * @param receiverId 接收者ID
      * @param receiverType 接收者类型

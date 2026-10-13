@@ -35,8 +35,11 @@ public class JobController {
         if ("hot".equals(sort)) {
             List<Long> hotIds = hotJobService.getHotJobIds(100);
             if (!hotIds.isEmpty()) {
+                // 批量查询避免 N+1（原实现逐个 getById 导致 100 次 SQL）
+                Map<Long, Job> jobMap = jobService.listByIds(hotIds).stream()
+                        .collect(Collectors.toMap(Job::getId, j -> j));
                 List<Job> hotJobs = hotIds.stream()
-                        .map(jobService::getById)
+                        .map(jobMap::get)
                         .filter(Objects::nonNull)
                         .skip((long) (page - 1) * size)
                         .limit(size)

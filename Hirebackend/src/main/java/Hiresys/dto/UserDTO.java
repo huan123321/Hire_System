@@ -1,9 +1,11 @@
 package Hiresys.dto;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collection;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,6 +54,44 @@ public class UserDTO implements Serializable {
     private Long companyId;
 
     private String companyName;
+
+    /**
+     * 兼容前端 location 传数组（如 ["中国","北京","北京市"]）的情况，
+     * 统一转为逗号分隔的字符串。
+     */
+    @JsonSetter("location")
+    public void setLocationJson(Object value) {
+        if (value == null) {
+            this.location = null;
+        } else if (value instanceof String) {
+            this.location = (String) value;
+        } else if (value instanceof Collection<?> coll) {
+            this.location = String.join(",", coll.stream().map(String::valueOf).toList());
+        } else {
+            this.location = value.toString();
+        }
+    }
+
+    /**
+     * 兼容前端 gender 传 "male"/"female" 字符串（而非 true/false 布尔）的情况。
+     */
+    @JsonSetter("gender")
+    public void setGenderJson(Object value) {
+        if (value == null) {
+            this.gender = null;
+        } else if (value instanceof Boolean b) {
+            this.gender = b;
+        } else {
+            String s = value.toString().toLowerCase();
+            if ("male".equals(s) || "true".equals(s) || "1".equals(s)) {
+                this.gender = true;
+            } else if ("female".equals(s) || "false".equals(s) || "0".equals(s)) {
+                this.gender = false;
+            } else {
+                this.gender = null;
+            }
+        }
+    }
 
     // �?注意：以下敏感字段不会包含在 DTO �?    // - password (密码)
     // - lastLoginIp (最后登录IP)

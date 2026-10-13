@@ -57,14 +57,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             }
 
             Set<String> keys = new HashSet<>();
+            // 聊天统一按用户维度：user_{userId}（求职者 / HR 都以用户身份在线）
             String userKey = "user_" + userId;
             keys.add(userKey);
-
-            if (companyId != null && !companyId.isEmpty()) {
-                keys.add("company_" + companyId);
-            } else if ("company".equals(userType)) {
-                keys.add("company_" + userId);
-            }
 
             for (String key : keys) {
                 onlineUsers.put(key, session);
@@ -109,7 +104,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        log.error("WebSocket传输错误", exception);
+        // 客户端异常断开（刷新页面/网络抖动/关标签页）是预期内事件，降级为 warn 避免刷 ERROR 堆栈
+        log.warn("WebSocket 传输错误（客户端可能异常断开），清理会话: {}", exception.getMessage());
         removeSession(session);
     }
 
@@ -147,19 +143,17 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         WebSocketSession receiverSession = null;
 
+        // 统一按用户维度转发：receiverType 恒为 "user"，receiverId 为接收方用户 ID
         if ("company".equals(receiverType)) {
-            log.info("消息发送给公司 ID: {}", receiverId);
+            // 兼容历史数据：发给公司的旧消息，转发给该公司的 HR 用户
+            log.info("历史 company 消息，转发给公司 {} 的 HR", receiverId);
             String companyKey = "company_" + receiverId;
             receiverSession = onlineUsers.get(companyKey);
-            if (receiverSession != null && receiverSession.isOpen()) {
-                log.info("命中公司在线映射: {}", companyKey);
-            }
-
             if (receiverSession == null || !receiverSession.isOpen()) {
                 User hrUser = userMapper.selectOne(
-                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<User>()
-                        .eq(User::getRole, 1)
-                        .eq(User::getCompanyId, receiverId)
+                    new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<User>()
+                        .eq("role", 1)
+                        .eq("company_id", receiverId)
                         .last("LIMIT 1")
                 );
                 if (hrUser != null) {
@@ -223,10 +217,17 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void sendMessage(WebSocketSession session, Map<String, Object> message) throws IOException {
-        if (session != null && session.isOpen()) {
-            String jsonMessage = objectMapper.writeValueAsString(message);
-            session.sendMessage(new TextMessage(jsonMessage));
+    /**
+     * 发送消息（防御式：连接已关闭/中断时捕获异常，不再向上抛，避免连锁报错）
+     */
+    private void sendMessage(WebSocketSession session, Map<String, Object> message) {
+        try {
+            if (session != null && session.isOpen()) {
+                String jsonMessage = objectMapper.writeValueAsString(message);
+                session.sendMessage(new TextMessage(jsonMessage));
+            }
+        } catch (Exception e) {
+            log.warn("发送消息失败（连接可能已关闭）: {}", e.getMessage());
         }
     }
 
@@ -242,11 +243,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         String key = userType + "_" + userId;
         WebSocketSession session = onlineUsers.get(key);
         if (session != null && session.isOpen()) {
-            try {
-                sendMessage(session, message);
-            } catch (IOException e) {
-                log.error("发送消息到用户失败: key={}", key, e);
-            }
+            sendMessage(session, message);
         }
     }
 }

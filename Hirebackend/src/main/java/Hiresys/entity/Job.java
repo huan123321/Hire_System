@@ -35,6 +35,8 @@ public class Job implements Serializable {
 
     private String salary;
 
+    private String description;
+
     private String city;
 
     private String experience;
@@ -42,6 +44,17 @@ public class Job implements Serializable {
     private String education;
 
     private String companyName;
+
+    /**
+     * 公司头像（非表字段，由查询后填充）
+     */
+    @com.baomidou.mybatisplus.annotation.TableField(exist = false)
+    private String companyLogo;
+
+    /**
+     * 职位状态：active=招聘中，inactive=已下架
+     */
+    private String status;
 
     private String tags;
 

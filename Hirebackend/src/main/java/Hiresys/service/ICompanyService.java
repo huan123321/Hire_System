@@ -1,6 +1,7 @@
 package Hiresys.service;
 
 import Hiresys.entity.Company;
+import Hiresys.entity.User;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -31,9 +32,10 @@ public interface ICompanyService extends IService<Company> {
      * 根据条件筛选公司
      * @param scale 公司规模
      * @param industry 行业
+     * @param location 所在地（省或市，模糊匹配地址）
      * @return 符合条件的公司列表
      */
-    List<Company> filterCompanies(String scale, String industry);
+    List<Company> filterCompanies(String scale, String industry, String location);
     
     /**
      * 添加公司
@@ -56,4 +58,11 @@ public interface ICompanyService extends IService<Company> {
      * @return 是否删除成功
      */
     boolean deleteCompany(Long id);
+
+    /**
+     * 获取公司的 HR 用户（求职者与 HR 在线沟通用）
+     * @param companyId 公司 ID
+     * @return 该公司第一个未删除的 HR 用户（companyName 已补充），无则返回 null
+     */
+    User getCompanyHr(Long companyId);
 }

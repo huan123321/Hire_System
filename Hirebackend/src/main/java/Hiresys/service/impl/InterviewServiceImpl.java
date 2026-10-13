@@ -3,8 +3,10 @@ package Hiresys.service.impl;
 import Hiresys.entity.Interview;
 import Hiresys.entity.Job;
 import Hiresys.entity.JobApplication;
+import Hiresys.entity.User;
 import Hiresys.exception.BusinessException;
 import Hiresys.mapper.InterviewMapper;
+import Hiresys.mapper.UserMapper;
 import Hiresys.service.IInterviewService;
 import Hiresys.service.IJobApplicationService;
 import Hiresys.service.IJobService;
@@ -42,6 +44,9 @@ public class InterviewServiceImpl extends ServiceImpl<InterviewMapper, Interview
 
     @Autowired
     private Hiresys.mapper.CompanyMapper companyMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -90,9 +95,9 @@ public class InterviewServiceImpl extends ServiceImpl<InterviewMapper, Interview
             }
 
             // 3. 检查是否已经安排了面试
-            Interview existingInterview = this.lambdaQuery()
-                    .eq(Interview::getApplicationId, applicationId)
-                    .in(Interview::getStatus, "scheduled", "confirmed")
+            Interview existingInterview = this.query()
+                    .eq("application_id", applicationId)
+                    .in("status", "scheduled", "confirmed")
                     .one();
             if (existingInterview != null) {
                 throw new BusinessException("该申请已安排面试，请先取消或完成现有面试");
@@ -343,10 +348,18 @@ public class InterviewServiceImpl extends ServiceImpl<InterviewMapper, Interview
                 throw new BusinessException("面试记录不存在");
             }
 
-            // 2. 验证权限（HR或求职者都可以取消）
-            if (!interview.getUserId().equals(userId)) {
-                // TODO: 这里应该检查是否是HR（通过companyId）
-                // 暂时简化处理
+            // 2. 验证权限（求职者本人或该公司的 HR 可以取消）
+            Integer applicantId = interview.getUserId();
+            boolean isApplicant = applicantId != null && applicantId.equals(userId);
+            boolean isCompanyHr = false;
+            if (!isApplicant && interview.getCompanyId() != null) {
+                User operator = userMapper.selectById(userId);
+                isCompanyHr = operator != null
+                        && Integer.valueOf(1).equals(operator.getRole())
+                        && interview.getCompanyId().equals(operator.getCompanyId());
+            }
+            if (!isApplicant && !isCompanyHr) {
+                throw new BusinessException("无权取消该面试");
             }
 
             // 3. 验证状态

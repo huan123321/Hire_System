@@ -1,5 +1,6 @@
 package Hiresys.service.impl;
 
+import Hiresys.auth.TokenService;
 import Hiresys.entity.Company;
 import Hiresys.entity.User;
 import Hiresys.exception.BusinessException;
@@ -34,6 +35,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TokenService tokenService;
+
     @Override
     public List<User> selectAll() {
         return this.list();
@@ -43,13 +47,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "user", key = "#user.id", beforeInvocation = false)
     public boolean saveOrUpdateUser(User user) {
-        if (user.getUsername() == null || user.getUsername().isEmpty()) {
-            throw new BusinessException("用户名不能为空");
-        }
-
         user.setUpdateTime(LocalDateTime.now());
 
         if (user.getId() == null) {
+            // 新增用户：用户名必填
+            if (user.getUsername() == null || user.getUsername().isEmpty()) {
+                throw new BusinessException("用户名不能为空");
+            }
             user.setCreateTime(LocalDateTime.now());
             user.setStatus(true);
             user.setIsDeleted(false);
@@ -69,6 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 user.setPassword(null);
             }
 
+            // 更新资料不允许改用户名（用户名作为登录标识不可变更）
             user.setUsername(null);
             return this.updateById(user);
         }
@@ -112,8 +117,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BusinessException("用户名和密码不能为空");
         }
 
-        User existingUser = this.lambdaQuery()
-                .eq(User::getUsername, username)
+        // 防提权：开放注册只允许 求职者(0) / HR(1)，管理员(2) 只能由管理员创建
+        if (role != 0 && role != 1) {
+            throw new BusinessException("无效的用户角色");
+        }
+
+        User existingUser = this.query()
+                .eq("username", username)
                 .one();
 
         if (existingUser != null) {
@@ -136,8 +146,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             }
 
             Company existingCompany = companyMapper.selectOne(
-                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Company>()
-                            .eq(Company::getName, companyName)
+                    new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Company>()
+                            .eq("name", companyName)
             );
 
             if (existingCompany != null) {
@@ -180,8 +190,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BusinessException("用户注册失败");
         }
 
-        User savedUser = this.lambdaQuery()
-                .eq(User::getUsername, username)
+        User savedUser = this.query()
+                .eq("username", username)
                 .one();
 
         // 清除密码，避免返回给前端
@@ -222,8 +232,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
 
         // 只按用户名查询
-        User user = this.lambdaQuery()
-                .eq(User::getUsername, username)
+        User user = this.query()
+                .eq("username", username)
                 .one();
 
         if (user == null) {
@@ -238,6 +248,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             result.put("success", true);
             result.put("message", "登录成功");
             result.put("user", user);
+            result.put("token", tokenService.generateToken(user.getId()));
             return result;
         }
 
@@ -252,6 +263,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             result.put("success", true);
             result.put("message", "登录成功");
             result.put("user", user);
+            result.put("token", tokenService.generateToken(user.getId()));
             return result;
         }
 

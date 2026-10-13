@@ -2,9 +2,11 @@ package Hiresys.service.impl;
 
 import Hiresys.entity.Job;
 import Hiresys.entity.JobApplication;
+import Hiresys.entity.Company;
 import Hiresys.entity.User;
 import Hiresys.exception.BusinessException;
 import Hiresys.mapper.JobMapper;
+import Hiresys.mapper.CompanyMapper;
 import Hiresys.service.IJobApplicationService;
 import Hiresys.service.IJobService;
 import Hiresys.service.IUserService;
@@ -13,6 +15,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,14 +42,52 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private CompanyMapper companyMapper;
+
+    /**
+     * 按公司名填充职位对应的公司头像（无匹配公司则为空）
+     */
+    private void fillCompanyLogo(List<Job> jobs) {
+        if (jobs == null || jobs.isEmpty()) return;
+        for (Job job : jobs) {
+            if (job.getCompanyName() == null || job.getCompanyName().isEmpty()) continue;
+            Company company = companyMapper.selectOne(new QueryWrapper<Company>()
+                    .eq("name", job.getCompanyName())
+                    .last("LIMIT 1"));
+            if (company != null) {
+                job.setCompanyLogo(company.getLogo());
+            }
+        }
+    }
     
+    /**
+     * 分页查询职位（带 Redis 缓存）
+     * <p>
+     * 缓存设计（A/B 对比压测用）：
+     * <ul>
+     *   <li>key 含全部查询参数，避免不同条件互相污染</li>
+     *   <li>condition 只缓存前 3 页（每页 10 条）：分页组合多，全量缓存会导致 key 爆炸；
+     *       而真实流量集中在首页/前几页，缓存热点页收益最高</li>
+     *   <li>unless 空结果不缓存，防缓存穿透</li>
+     *   <li>职位增删改（含上下架）时通过 @CacheEvict allEntries 整体失效，保证一致</li>
+     * </ul>
+     */
     @Override
+    @Cacheable(value = "jobList",
+            key = "#page + ':' + #size + ':' + (#keyword ?: '') + ':' + (#city ?: '')",
+            condition = "#page <= 3 && #size == 10",
+            unless = "#result == null")
     public IPage<Job> getJobsByPage(Integer page, Integer size, String keyword, String city) {
         // 创建分页对象
         Page<Job> jobPage = new Page<>(page, size);
         
         // 创建查询条件
         QueryWrapper<Job> queryWrapper = new QueryWrapper<>();
+        
+        // 求职者端只展示招聘中的职位
+        queryWrapper.eq("status", "active");
         
         // 添加搜索条件
         if (keyword != null && !keyword.isEmpty()) {
@@ -61,13 +103,18 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         queryWrapper.orderByDesc("create_time");
         
         // 执行分页查询
-        return this.baseMapper.selectPage(jobPage, queryWrapper);
+        IPage<Job> result = this.baseMapper.selectPage(jobPage, queryWrapper);
+        fillCompanyLogo(result.getRecords());
+        return result;
     }
     
     @Override
     public List<Job> filterJobs(String salary, String experience, String education) {
         // 创建查询条件
         QueryWrapper<Job> queryWrapper = new QueryWrapper<>();
+        
+        // 求职者端只展示招聘中的职位
+        queryWrapper.eq("status", "active");
         
         if (salary != null && !salary.isEmpty()) {
             queryWrapper.like("salary", salary);
@@ -81,15 +128,23 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
             queryWrapper.eq("education", education);
         }
         
-        return this.list(queryWrapper);
+        List<Job> result = this.list(queryWrapper);
+        fillCompanyLogo(result);
+        return result;
     }
     
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = "jobList", allEntries = true)
     public Job createJob(Job job) {
         // 验证必填字段
         if (job.getTitle() == null || job.getTitle().isEmpty()) {
             throw new BusinessException("职位名称不能为空");
+        }
+        
+        // 新发布的职位默认招聘中
+        if (job.getStatus() == null || job.getStatus().isEmpty()) {
+            job.setStatus("active");
         }
         
         // 设置创建时间和更新时间
@@ -108,6 +163,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = "jobList", allEntries = true)
     public Job updateJob(Long id, Job job) {
         // 检查职位是否存在
         Job existingJob = this.getById(id);
@@ -135,11 +191,14 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         QueryWrapper<Job> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_name", companyName);
         
-        return this.list(queryWrapper);
+        List<Job> result = this.list(queryWrapper);
+        fillCompanyLogo(result);
+        return result;
     }
     
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = "jobList", allEntries = true)
     public boolean deleteJob(Long id) {
         // 检查职位是否存在
         Job existingJob = this.getById(id);
@@ -184,6 +243,12 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     @Override
     public Job getJobById(Long id) {
         // 根据 ID 获取职位
-        return this.getById(id);
+        Job job = this.getById(id);
+        if (job != null) {
+            List<Job> one = new ArrayList<>();
+            one.add(job);
+            fillCompanyLogo(one);
+        }
+        return job;
     }
 }

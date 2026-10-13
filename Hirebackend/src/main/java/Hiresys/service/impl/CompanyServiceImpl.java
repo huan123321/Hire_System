@@ -1,13 +1,16 @@
 package Hiresys.service.impl;
 
 import Hiresys.entity.Company;
+import Hiresys.entity.User;
 import Hiresys.exception.BusinessException;
 import Hiresys.mapper.CompanyMapper;
+import Hiresys.mapper.UserMapper;
 import Hiresys.service.ICompanyService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,9 @@ import java.util.List;
  */
 @Service
 public class CompanyServiceImpl extends ServiceImpl<CompanyMapper, Company> implements ICompanyService {
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     @Cacheable(value = "company", key = "#id", unless = "#result == null")
@@ -58,7 +64,7 @@ public class CompanyServiceImpl extends ServiceImpl<CompanyMapper, Company> impl
     }
     
     @Override
-    public List<Company> filterCompanies(String scale, String industry) {
+    public List<Company> filterCompanies(String scale, String industry, String location) {
         // 创建查询条件
         QueryWrapper<Company> queryWrapper = new QueryWrapper<>();
         
@@ -68,6 +74,10 @@ public class CompanyServiceImpl extends ServiceImpl<CompanyMapper, Company> impl
         
         if (industry != null && !industry.isEmpty()) {
             queryWrapper.eq("industry", industry);
+        }
+
+        if (location != null && !location.isEmpty()) {
+            queryWrapper.like("address", location);
         }
         
         return this.list(queryWrapper);
@@ -131,5 +141,23 @@ public class CompanyServiceImpl extends ServiceImpl<CompanyMapper, Company> impl
         }
         
         return this.removeById(id);
+    }
+
+    @Override
+    public User getCompanyHr(Long companyId) {
+        User hr = userMapper.selectOne(new QueryWrapper<User>()
+                .eq("role", 1)
+                .eq("company_id", companyId)
+                .eq("is_deleted", 0)
+                .last("LIMIT 1"));
+        if (hr == null) {
+            return null;
+        }
+        // 补充公司名称（companyName 为非存储字段）
+        Company company = this.getById(companyId);
+        if (company != null) {
+            hr.setCompanyName(company.getName());
+        }
+        return hr;
     }
 }

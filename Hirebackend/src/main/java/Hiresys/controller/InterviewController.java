@@ -35,8 +35,9 @@ public class InterviewController {
     @Operation(summary = "求职者确认或拒绝面试")
     @PostMapping("/confirm/{interviewId}")
     public Result<?> confirmInterview(@PathVariable Long interviewId,
-                                      @RequestParam Integer userId,
-                                      @RequestParam Boolean confirmed) {
+                                      @RequestParam Boolean confirmed,
+                                      jakarta.servlet.http.HttpServletRequest request) {
+        Integer userId = currentUserId(request);
         return wrapServiceResult(interviewService.confirmInterview(interviewId, userId, confirmed));
     }
 
@@ -66,8 +67,9 @@ public class InterviewController {
     @Operation(summary = "取消面试")
     @PostMapping("/cancel/{interviewId}")
     public Result<?> cancelInterview(@PathVariable Long interviewId,
-                                      @RequestParam Integer userId,
-                                      @RequestParam(required = false) String reason) {
+                                      @RequestParam(required = false) String reason,
+                                      jakarta.servlet.http.HttpServletRequest request) {
+        Integer userId = currentUserId(request);
         return wrapServiceResult(interviewService.cancelInterview(interviewId, userId, reason));
     }
 
@@ -88,5 +90,14 @@ public class InterviewController {
             return Result.ok(message, serviceResult);
         }
         return Result.fail(message != null ? message : "操作失败");
+    }
+
+    /** 从认证上下文获取当前用户 ID（拦截器已校验 token） */
+    private Integer currentUserId(jakarta.servlet.http.HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute(Hiresys.auth.AuthInterceptor.ATTR_USER_ID);
+        if (userId == null) {
+            throw new Hiresys.exception.BusinessException("未登录或登录已过期");
+        }
+        return userId;
     }
 }
