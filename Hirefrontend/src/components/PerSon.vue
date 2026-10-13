@@ -8,12 +8,13 @@
       <div class="profile-overview">
         <div class="profile-header">
           <div class="avatar-container">
-            <el-avatar :size="100" :src="userInfo.avatar" class="user-avatar">
+            <el-avatar :size="100" :src="displayAvatar" class="user-avatar">
               <i class="fas fa-user" v-if="!userInfo.avatar"></i>
             </el-avatar>
             <el-upload
                 class="avatar-uploader"
-                action="/api/upload"
+                :action="$apiBaseUrl + '/upload/avatar'"
+                :headers="uploadHeaders"
                 :show-file-list="false"
                 :on-success="handleAvatarSuccess"
                 :before-upload="beforeAvatarUpload">
@@ -21,12 +22,12 @@
             </el-upload>
           </div>
           <div class="profile-info">
-            <h1 class="username">{{ userInfo.name }}</h1>
-            <p class="user-title">{{ userInfo.title || '未设置个人昵称' }}</p>
+            <h1 class="username">{{ displayName }}</h1>
+            <p class="user-title" v-if="userInfo.username && userInfo.username !== displayName">@{{ userInfo.username }}</p>
             <div class="profile-meta">
               <span><i class="fas fa-envelope"></i> {{ userInfo.email }}</span>
               <span><i class="fas fa-phone"></i> {{ userInfo.phone || '未绑定手机' }}</span>
-              <span><i class="fas fa-map-marker-alt"></i> {{ userInfo.location || '未设置所在地' }}</span>
+              <span><i class="fas fa-map-marker-alt"></i> {{ formatLocation(userInfo.location) }}</span>
               <span><i class="fas fa-user-circle"></i> 角色: {{ userRole === 'hr' ? 'HR' : '求职者' }}</span>
               <span><i class="fas fa-info-circle"></i> 状态: {{ userInfo.status ? '正常' : '禁用' }}</span>
               <span v-if="userInfo.createTime"><i class="fas fa-calendar-plus"></i> 注册时间: {{ formatDate(userInfo.createTime) }}</span>
@@ -574,7 +575,7 @@
           <el-descriptions-item label="申请职位">{{ selectedCandidate.jobTitle }}</el-descriptions-item>
           <el-descriptions-item label="申请时间">{{ selectedCandidate.applyDate }}</el-descriptions-item>
           <el-descriptions-item label="当前状态">
-            <el-tag :type="getCandidateStatusType(selectedCandidate.statusValue)">
+            <el-tag :type="getCandidateStatusType(selectedCandidate.status)">
               {{ selectedCandidate.status }}
             </el-tag>
           </el-descriptions-item>
@@ -743,6 +744,8 @@
 
 <script>
 import AppHeader from '@/components/common/AppHeader.vue'
+import chinaRegions from '@/utils/chinaRegions'
+import { defaultAvatar } from '@/utils/avatar'
 
 export default {
   name: 'PersonalCenter',
@@ -755,6 +758,7 @@ export default {
       activeNav: 'profile',
       userInfo: {
         id: null,
+        username: '',        // 登录用户名（展示/保存用，不可修改）
         name: '',
         avatar: '',
         title: '',
@@ -837,28 +841,7 @@ export default {
       securitySettings: {
         protection: true
       },
-      cityOptions: [
-        {
-          value: '中国',
-          label: '中国',
-          children: [
-            {
-              value: '北京',
-              label: '北京',
-              children: [
-                { value: '北京市', label: '北京市' }
-              ]
-            },
-            {
-              value: '上海',
-              label: '上海',
-              children: [
-                { value: '上海市', label: '上海市' }
-              ]
-            }
-          ]
-        }
-      ],
+      cityOptions: chinaRegions,
       passwordDialogVisible: false,
       passwordForm: {
         oldPassword: '',
@@ -953,6 +936,19 @@ export default {
     }
   },
   computed: {
+    uploadHeaders() {
+      // 上传接口需要登录 token（后端 /upload/** 受鉴权保护）
+      const token = sessionStorage.getItem('token');
+      return token ? { Authorization: 'Bearer ' + token } : {};
+    },
+    // 显示名称：优先昵称/名称，最后才是用户名（用户要求显示“名称”而非“用户名”）
+    displayName() {
+      return this.userInfo.title || this.userInfo.name || this.userInfo.nickname || this.userInfo.username || '用户';
+    },
+    // 无自定义头像时按性别显示默认头像
+    displayAvatar() {
+      return this.userInfo.avatar || defaultAvatar(this.userInfo.gender);
+    },
     filteredCandidates() {
       let result = this.candidates;
       if (this.candidateFilter.job) {
@@ -999,6 +995,22 @@ export default {
       const seconds = String(date.getSeconds()).padStart(2, '0');
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
+    // 兼容：新级联结构为「省-市」，去掉旧数据中的「中国」顶层
+    parseLocation(location) {
+      if (!location) return [];
+      const parts = String(location).split(',').map(s => s && s.trim()).filter(Boolean);
+      if (parts[0] === '中国') {
+        parts.shift();
+      }
+      return parts;
+    },
+    // 把所在地数组格式化成「省 市」字符串，避免直接显示 [ "四川", "自贡市" ]
+    formatLocation(location) {
+      if (!location || (Array.isArray(location) && location.length === 0)) return '未设置所在地';
+      const arr = Array.isArray(location) ? location : this.parseLocation(location);
+      if (arr.length === 0) return '未设置所在地';
+      return arr.join(' ');
+    },
     formatYearMonth(date) {
       if (!date) return '';
       if (typeof date === 'string') date = new Date(date);
@@ -1036,12 +1048,13 @@ export default {
               const user = response.data.data;
               // 更新用户信息
               this.userInfo.id = user.id;
-              this.userInfo.name = user.realName || user.username;
+              this.userInfo.username = user.username || '';
+              this.userInfo.name = user.realName || user.nickname || user.username;
               this.userInfo.avatar = user.avatar || '';
               this.userInfo.title = user.nickname || '';
               this.userInfo.email = user.email || '';
               this.userInfo.phone = user.phone || '';
-              this.userInfo.location = user.location ? user.location.split(',') : [];
+              this.userInfo.location = this.parseLocation(user.location);
               this.userInfo.gender = user.gender !== null ? (user.gender ? 'male' : 'female') : '';
               this.userInfo.birthday = user.birthday || '';
               this.userInfo.bio = user.bio || '';
@@ -1353,21 +1366,42 @@ export default {
       };
       return types[status] || '';
     },
-    handleAvatarSuccess(res, file) {
-      this.userInfo.avatar = URL.createObjectURL(file.raw);
+    async handleAvatarSuccess(res) {
+      // 后端返回 { code:200, data: "/uploads/avatars/xxx.jpg" }
+      if (res && res.code === 200 && res.data) {
+        const avatarUrl = this.$apiBaseUrl + res.data;
+        this.userInfo.avatar = avatarUrl;
+        // 统一通过 buildUserPayload 构造请求体（字段类型已对齐后端 UserDTO）
+        const payload = this.buildUserPayload();
+        // 持久化到用户资料（PUT /user/{id}），并同步 sessionStorage
+        try {
+          await this.$axios.put(this.$apiBaseUrl + '/user/' + this.userInfo.id, payload);
+          const userStr = sessionStorage.getItem('user');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            user.avatar = avatarUrl;
+            sessionStorage.setItem('user', JSON.stringify(user));
+          }
+          this.$message.success('头像更新成功');
+        } catch (e) {
+          this.$message.error('头像已上传但保存失败，请重试');
+        }
+      } else {
+        this.$message.error((res && res.message) || '头像上传失败');
+      }
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg';
       const isPNG = file.type === 'image/png';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+      const isLt10M = file.size / 1024 / 1024 < 10;
 
       if (!isJPG && !isPNG) {
         this.$message.error('上传头像图片只能是 JPG/PNG 格式!');
       }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
+      if (!isLt10M) {
+        this.$message.error('上传头像图片大小不能超过 10MB!');
       }
-      return (isJPG || isPNG) && isLt2M;
+      return (isJPG || isPNG) && isLt10M;
     },
     editResume() {
       this.$router.replace('/EditResume')
@@ -1639,6 +1673,29 @@ export default {
       });
     },
 
+    /**
+     * 统一把表单 userInfo 转换为后端 UserDTO 结构的请求体。
+     * 所有保存点（个人资料、头像等）都必须通过此方法构造 payload，
+     * 避免 location 数组 / gender 字符串等字段类型不匹配导致后端 500。
+     */
+    buildUserPayload() {
+      return {
+        id: this.userInfo.id,
+        username: this.userInfo.username,
+        realName: this.userInfo.name,
+        nickname: this.userInfo.title,
+        gender: this.userInfo.gender === 'male' ? true : (this.userInfo.gender === 'female' ? false : null),
+        birthday: this.userInfo.birthday || null,
+        location: Array.isArray(this.userInfo.location)
+            ? this.userInfo.location.join(',')
+            : (this.userInfo.location || ''),
+        bio: this.userInfo.bio,
+        email: this.userInfo.email,
+        phone: this.userInfo.phone,
+        avatar: this.userInfo.avatar
+      };
+    },
+
     saveProfile() {
       // 表单验证
       if (!this.userInfo.name) {
@@ -1673,21 +1730,8 @@ export default {
         return;
       }
 
-      // 构造要发送到后端的用户对象
-      const user = {
-        id: this.userInfo.id,
-        username: this.userInfo.name,
-        realName: this.userInfo.name,
-        gender: this.userInfo.gender === 'male' ? true : (this.userInfo.gender === 'female' ? false : null),
-        birthday: this.userInfo.birthday,
-        location: this.userInfo.location.join(','),
-        bio: this.userInfo.bio,
-        email: this.userInfo.email,
-        phone: this.userInfo.phone,
-        nickname: this.userInfo.title,
-        avatar: this.userInfo.avatar,
-        status: this.userInfo.status
-      };
+      // 统一通过 buildUserPayload 构造请求体（字段类型已对齐后端 UserDTO）
+      const user = this.buildUserPayload();
       
       console.log('保存用户信息:', user);
       
@@ -1977,7 +2021,7 @@ export default {
                 userId: item.userId,
                 jobId: item.jobId,
                 jobTitle: jobTitle, // 添加职位标题
-                name: item.realName || item.username || '未知用户',
+                name: item.realName || item.nickname || item.username || '未知用户',
                 user: { username: item.username || '' },
                 applyDate: item.applyTime ? new Date(item.applyTime).toLocaleDateString() : '',
                 statusValue: item.status,

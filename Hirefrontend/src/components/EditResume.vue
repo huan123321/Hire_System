@@ -250,6 +250,7 @@
 
 <script>
 import AppHeader from '@/components/common/AppHeader.vue'
+import chinaRegions from '@/utils/chinaRegions'
 
 export default {
   name: 'EditResume',
@@ -268,7 +269,7 @@ export default {
           name: '张三',
           gender: '男',
           age: 28,
-          location: ['中国', '北京', '北京市'],
+          location: ['北京', '北京市'],
           phone: '13800138000',
           email: 'zhangsan@example.com'
         },
@@ -300,28 +301,7 @@ export default {
           }
         ]
       },
-      cityOptions: [
-        {
-          value: '中国',
-          label: '中国',
-          children: [
-            {
-              value: '北京',
-              label: '北京',
-              children: [
-                { value: '北京市', label: '北京市' }
-              ]
-            },
-            {
-              value: '上海',
-              label: '上海',
-              children: [
-                { value: '上海市', label: '上海市' }
-              ]
-            }
-          ]
-        }
-      ]
+      cityOptions: chinaRegions,
     }
   },
   mounted() {
@@ -370,6 +350,12 @@ export default {
         // 解析简历数据
         this.resumeForm.name = resume.name;
         this.resumeForm.basicInfo = resume.basicInfo ? JSON.parse(resume.basicInfo) : {};
+        // 兼容旧 3 级(中国/省/市)结构，去掉「中国」顶层以匹配新级联
+        if (Array.isArray(this.resumeForm.basicInfo.location)) {
+          if (this.resumeForm.basicInfo.location[0] === '中国') {
+            this.resumeForm.basicInfo.location = this.resumeForm.basicInfo.location.slice(1);
+          }
+        }
         this.resumeForm.education = resume.education ? JSON.parse(resume.education) : [];
         this.resumeForm.experience = resume.experience ? JSON.parse(resume.experience) : [];
         this.resumeForm.projects = resume.projects ? JSON.parse(resume.projects) : [];

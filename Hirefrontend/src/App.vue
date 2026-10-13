@@ -44,7 +44,8 @@ export default {
   methods: {
     connectWebSocket() {
       if (!this.currentUser || !this.currentUser.id) return;
-      const userType = this.currentUser.role === 1 ? 'company' : 'user';
+      // 聊天统一按用户维度：求职者和 HR 都以用户身份连接
+      const userType = 'user';
       const companyId = this.currentUser.companyId || null;
       chatWebSocket.connect(this.currentUser.id, userType, { companyId });
     },

@@ -73,15 +73,21 @@
 
           <div class="filter-section">
             <div class="filter-title">工作地点</div>
-            <el-checkbox-group v-model="filters.location" @change="filterCompanies">
-              <el-checkbox label="">全部</el-checkbox>
-              <el-checkbox label="北京">北京</el-checkbox>
-              <el-checkbox label="上海">上海</el-checkbox>
-              <el-checkbox label="广州">广州</el-checkbox>
-              <el-checkbox label="深圳">深圳</el-checkbox>
-              <el-checkbox label="杭州">杭州</el-checkbox>
-              <el-checkbox label="成都">成都</el-checkbox>
-            </el-checkbox-group>
+            <el-select v-model="filters.location" placeholder="全部" clearable filterable style="width:100%" @change="filterCompanies">
+              <el-option label="全部" value=""></el-option>
+              <el-option-group
+                  v-for="province in cityOptions"
+                  :key="province.value"
+                  :label="province.value">
+                <el-option :label="province.label" :value="province.value"></el-option>
+                <el-option
+                    v-for="city in province.children"
+                    :key="city.value"
+                    :label="city.label"
+                    :value="city.value">
+                </el-option>
+              </el-option-group>
+            </el-select>
           </div>
         </div>
 
@@ -90,8 +96,7 @@
           <div v-for="company in filteredCompanies" :key="company.id" class="company-card" @click="goToCompanyDetail(company.id)">
             <div class="company-header">
               <div class="company-logo">
-                <i class="fas fa-building" v-if="!company.logo"></i>
-                <img :src="company.logo" :alt="company.name" v-if="company.logo" style="width: 100%; height: 100%; object-fit: cover;">
+                <img :src="companyLogo(company)" :alt="company.name" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
               <div class="company-info">
                 <div class="company-name">{{ company.name }}</div>
@@ -146,6 +151,8 @@
 
 <script>
 import AppHeader from '@/components/common/AppHeader.vue'
+import chinaRegions from '@/utils/chinaRegions'
+import { getCompanyLogo } from '@/utils/companyLogo'
 
 export default {
   name: 'CompanyHome',
@@ -158,11 +165,12 @@ export default {
       searchIndustry: '',
       currentPage: 1,
       total: 0,
+      cityOptions: chinaRegions,
       filters: {
         industry: [],
         companySize: '',
         financeStage: '',
-        location: []
+        location: ''
       },
       companies: [],
       filteredCompanies: []
@@ -176,6 +184,10 @@ export default {
 
   },
   methods: {
+    // 公司头像：优先 logo，否则按行业/名称生成默认头像
+    companyLogo(company) {
+      return getCompanyLogo(company);
+    },
     async loadCompanies() {
       try {
         const response = await this.$axios.get(this.$apiBaseUrl + '/company/list', {
@@ -294,6 +306,7 @@ export default {
         
         if (this.filters.scale) params.scale = this.filters.scale;
         if (this.filters.industry) params.industry = this.filters.industry;
+        if (this.filters.location) params.location = this.filters.location;
         
         const response = await this.$axios.get(this.$apiBaseUrl + '/company/filter', {
           params: params

@@ -2,139 +2,139 @@
   <div class="app-wrapper">
     <AppHeader />
 <div class="hr-company-container">
-    <!-- �������� -->
+    <!-- 公司信息管理 -->
 
 
     <div class="container">
-      <!-- ҳ����� -->
+      <!-- 页面头部 -->
       <div class="page-header">
         <h1 class="page-title">
           <i class="fas fa-building"></i>
-          ��˾��Ϣ����
+          公司信息管理
         </h1>
-        <p class="page-subtitle">�����ά����˾��Ϣ</p>
+        <p class="page-subtitle">查看并维护公司信息</p>
       </div>
 
-      <!-- ����״̬ -->
+      <!-- 加载状态 -->
       <div v-if="loading" class="loading-container">
         <el-skeleton :rows="10" animated />
       </div>
 
-      <!-- ��˾��Ϣչʾ -->
+      <!-- 公司信息展示 -->
       <div v-else-if="companyInfo" class="company-management">
-        <!-- ��˾������Ϣ��Ƭ -->
+        <!-- 公司基本信息卡片 -->
         <div class="company-card">
           <div class="card-header">
             <h2 class="card-title">
               <i class="fas fa-info-circle"></i>
-              ��˾������Ϣ
+              公司基本信息
             </h2>
             <el-button 
               type="primary" 
               size="small"
               @click="toggleEdit"
               :icon="isEditing ? 'el-icon-close' : 'el-icon-edit'">
-              {{ isEditing ? 'ȡ���༭' : '�༭��Ϣ' }}
+              {{ isEditing ? '取消编辑' : '编辑信息' }}
             </el-button>
           </div>
 
           <div class="card-body">
-            <!-- �鿴ģʽ -->
+            <!-- 查看模式 -->
             <div v-if="!isEditing" class="info-display">
               <div class="info-row">
                 <div class="info-item">
-                  <label>��˾���ƣ�</label>
+                  <label>公司名称：</label>
                   <span>{{ companyInfo.name }}</span>
                 </div>
                 <div class="info-item">
-                  <label>������ҵ��</label>
+                  <label>所属行业：</label>
                   <span>{{ companyInfo.industry }}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-item">
-                  <label>��˾��ģ��</label>
+                  <label>公司规模：</label>
                   <span>{{ companyInfo.scale }}</span>
                 </div>
                 <div class="info-item">
-                  <label>��ϵ�绰��</label>
+                  <label>联系电话：</label>
                   <span>{{ companyInfo.phone }}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-item full-width">
-                  <label>��˾��ַ��</label>
+                  <label>公司地址：</label>
                   <span>{{ companyInfo.address }}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-item full-width">
-                  <label>��˾��飺</label>
-                  <div class="description-text">{{ companyInfo.description || '���޼��' }}</div>
+                  <label>公司简介：</label>
+                  <div class="description-text">{{ companyInfo.description || '暂无简介' }}</div>
                 </div>
               </div>
             </div>
 
-            <!-- �༭ģʽ -->
+            <!-- 编辑模式 -->
             <el-form v-else :model="editForm" :rules="rules" ref="editForm" label-width="100px" class="edit-form">
               <el-row :gutter="20">
                 <el-col :span="12">
-                  <el-form-item label="��˾����" prop="name">
-                    <el-input v-model="editForm.name" placeholder="�����빫˾����"></el-input>
+                  <el-form-item label="公司名称" prop="name">
+                    <el-input v-model="editForm.name" placeholder="请输入公司名称"></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                  <el-form-item label="������ҵ" prop="industry">
-                    <el-select v-model="editForm.industry" placeholder="��ѡ����ҵ" style="width: 100%">
-                      <el-option label="������" value="������"></el-option>
-                      <el-option label="��������" value="��������"></el-option>
-                      <el-option label="����" value="����"></el-option>
-                      <el-option label="����" value="����"></el-option>
-                      <el-option label="���ز�" value="���ز�"></el-option>
-                      <el-option label="ͨ�ż���" value="ͨ�ż���"></el-option>
-                      <el-option label="����ҵ" value="����ҵ"></el-option>
-                      <el-option label="����ҵ" value="����ҵ"></el-option>
+                  <el-form-item label="所属行业" prop="industry">
+                    <el-select v-model="editForm.industry" placeholder="请选择所属行业" style="width: 100%">
+                      <el-option label="互联网" value="互联网"></el-option>
+                      <el-option label="电子商务" value="电子商务"></el-option>
+                      <el-option label="金融" value="金融"></el-option>
+                      <el-option label="教育" value="教育"></el-option>
+                      <el-option label="房地产" value="房地产"></el-option>
+                      <el-option label="通信技术" value="通信技术"></el-option>
+                      <el-option label="制造业" value="制造业"></el-option>
+                      <el-option label="服务业" value="服务业"></el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
               </el-row>
               <el-row :gutter="20">
                 <el-col :span="12">
-                  <el-form-item label="��˾��ģ" prop="scale">
-                    <el-select v-model="editForm.scale" placeholder="��ѡ���ģ" style="width: 100%">
-                      <el-option label="����50��" value="����50��"></el-option>
-                      <el-option label="50-200��" value="50-200��"></el-option>
-                      <el-option label="200-500��" value="200-500��"></el-option>
-                      <el-option label="500������" value="500������"></el-option>
+                  <el-form-item label="公司规模" prop="scale">
+                    <el-select v-model="editForm.scale" placeholder="请选择规模" style="width: 100%">
+                      <el-option label="少于50人" value="少于50人"></el-option>
+                      <el-option label="50-200人" value="50-200人"></el-option>
+                      <el-option label="200-500人" value="200-500人"></el-option>
+                      <el-option label="500人以上" value="500人以上"></el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                  <el-form-item label="��ϵ�绰" prop="phone">
-                    <el-input v-model="editForm.phone" placeholder="��������ϵ�绰"></el-input>
+                  <el-form-item label="联系电话" prop="phone">
+                    <el-input v-model="editForm.phone" placeholder="请输入联系电话"></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
-              <el-form-item label="��˾��ַ" prop="address">
-                <el-input v-model="editForm.address" placeholder="�����빫˾��ַ"></el-input>
+              <el-form-item label="公司地址" prop="address">
+                <el-input v-model="editForm.address" placeholder="请输入公司地址"></el-input>
               </el-form-item>
-              <el-form-item label="��˾���" prop="description">
+              <el-form-item label="公司简介" prop="description">
                 <el-input 
                   v-model="editForm.description" 
                   type="textarea" 
                   :rows="4"
-                  placeholder="�����빫˾���">
+                  placeholder="请输入公司简介">
                 </el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="saveCompany" :loading="saving">�����޸�</el-button>
-                <el-button @click="cancelEdit">ȡ��</el-button>
+                <el-button type="primary" @click="saveCompany" :loading="saving">保存修改</el-button>
+                <el-button @click="cancelEdit">取消</el-button>
               </el-form-item>
             </el-form>
           </div>
         </div>
 
-        <!-- ͳ�����ݿ�Ƭ -->
+        <!-- 统计数据卡片 -->
         <div class="stats-section">
           <div class="stat-card" @click="viewJobs">
             <div class="stat-icon" style="background: #00C2A1;">
@@ -142,7 +142,7 @@
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ jobCount }}</div>
-              <div class="stat-label">����ְλ</div>
+              <div class="stat-label">发布职位</div>
             </div>
           </div>
           <div class="stat-card" @click="viewApplicants">
@@ -151,7 +151,7 @@
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ applicantCount }}</div>
-              <div class="stat-label">��������</div>
+              <div class="stat-label">收到申请</div>
             </div>
           </div>
           <div class="stat-card">
@@ -160,7 +160,7 @@
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ viewCount }}</div>
-              <div class="stat-label">��˾�����</div>
+              <div class="stat-label">公司浏览量</div>
             </div>
           </div>
           <div class="stat-card">
@@ -169,42 +169,42 @@
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ followCount }}</div>
-              <div class="stat-label">��ע����</div>
+              <div class="stat-label">关注人数</div>
             </div>
           </div>
         </div>
 
-        <!-- ��ݲ��� -->
+        <!-- 快捷操作 -->
         <div class="quick-actions">
           <h3 class="section-title">
             <i class="fas fa-thumbs-up"></i>
-            ��ݲ���
+            快捷操作
           </h3>
           <div class="action-buttons">
             <el-button type="primary" @click="createPosition">
               <i class="fas fa-plus"></i>
-              ������ְλ
+              发布新职位
             </el-button>
             <el-button type="success" @click="viewJobs">
               <i class="fas fa-list"></i>
-              ����ְλ
+              查看职位
             </el-button>
             <el-button type="warning" @click="viewApplicants">
               <i class="fas fa-users"></i>
-              �鿴������
+              查看候选人
             </el-button>
             <el-button type="info" @click="viewCompanyDetail">
               <i class="fas fa-eye"></i>
-              Ԥ����˾ҳ
+              预览公司页
             </el-button>
           </div>
         </div>
 
-        <!-- ��������� -->
+        <!-- 最新申请人 -->
         <div class="applicants-section" v-if="recentApplicants.length > 0">
           <h3 class="section-title">
             <i class="fas fa-user-clock"></i>
-            ���������
+            最新申请
           </h3>
           <div class="applicant-list">
             <div 
@@ -217,7 +217,7 @@
               <div class="applicant-info">
                 <div class="applicant-name">{{ applicant.userName }}</div>
                 <div class="applicant-position">
-                  ����ְλ��{{ applicant.jobTitle }}
+                  申请职位：{{ applicant.jobTitle }}
                   <el-tag 
                     :type="getStatusType(applicant.status)" 
                     size="mini" 
@@ -232,18 +232,18 @@
                   type="primary" 
                   size="small" 
                   @click="viewApplicantDetail(applicant)">
-                  �鿴����
+                  查看详情
                 </el-button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ��˾ְλ�б� -->
+        <!-- 公司职位列表 -->
         <div class="jobs-section" v-if="companyJobs.length > 0">
           <h3 class="section-title">
             <i class="fas fa-briefcase"></i>
-            ����ְλ
+            公司职位
           </h3>
           <div class="job-list">
             <div 
@@ -254,7 +254,7 @@
               <div class="job-title-row">
                 <div class="job-title">{{ job.title }}</div>
                 <el-tag :type="job.status === 'active' ? 'success' : 'info'" size="mini">
-                  {{ job.status === 'active' ? '��Ƹ��' : '�ѹر�' }}
+                  {{ job.status === 'active' ? '招聘中' : '已关闭' }}
                 </el-tag>
               </div>
               <div class="job-info-row">
@@ -266,7 +266,7 @@
               <div class="job-footer">
                 <span class="apply-count">
                   <i class="fas fa-user-friends"></i>
-                  {{ job.applyCount || 0 }} ������
+                  {{ job.applyCount || 0 }} 份申请
                 </span>
                 <span class="publish-time">{{ formatTime(job.createTime) }}</span>
               </div>
@@ -275,12 +275,12 @@
         </div>
       </div>
 
-      <!-- �޹�˾��Ϣ����ʾ -->
+      <!-- 无公司信息时提示 -->
       <div v-else class="empty-state">
         <i class="fas fa-building empty-icon"></i>
-        <h3>���޹�˾��Ϣ</h3>
-        <p>����ϵ����ԱΪ��������˾��Ϣ</p>
-        <el-button type="primary" @click="goToHome">������ҳ</el-button>
+        <h3>暂无公司信息</h3>
+        <p>请联系管理员为你创建公司信息</p>
+        <el-button type="primary" @click="goToHome">返回首页</el-button>
       </div>
     </div>
   </div>
@@ -289,10 +289,11 @@
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue';
 
 export default {
   name: 'HrCompany',
-  components: {},
+  components: { AppHeader },
   data() {
     return {
       currentUser: null,
@@ -310,41 +311,41 @@ export default {
       },
       rules: {
         name: [
-          { required: true, message: '�����빫˾����', trigger: 'blur' }
+          { required: true, message: '请输入公司名称', trigger: 'blur' }
         ],
         industry: [
-          { required: true, message: '��ѡ����ҵ', trigger: 'change' }
+          { required: true, message: '请选择所属行业', trigger: 'change' }
         ],
         scale: [
-          { required: true, message: '��ѡ��˾��ģ', trigger: 'change' }
+          { required: true, message: '请选择公司规模', trigger: 'change' }
         ],
         phone: [
-          { required: true, message: '��������ϵ�绰', trigger: 'blur' },
-          { pattern: /^1[3-9]\d{9}$/, message: '��������ȷ���ֻ���', trigger: 'blur' }
+          { required: true, message: '请输入联系电话', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
         ],
         address: [
-          { required: true, message: '�����빫˾��ַ', trigger: 'blur' }
+          { required: true, message: '请输入公司地址', trigger: 'blur' }
         ]
       },
-      // ͳ������
+      // 统计数据
       jobCount: 0,
       applicantCount: 0,
       viewCount: 0,
       followCount: 0,
-      // ���������
+      // 最新申请人
       recentApplicants: [],
-      // ��˾ְλ�б�
+      // 公司职位列表
       companyJobs: [],
     }
   },
   created() {
-    // ��ȡ��ǰ�û���Ϣ
+    // 获取当前用户信息
     const userStr = sessionStorage.getItem('user');
     if (userStr) {
       this.currentUser = JSON.parse(userStr);
     }
     
-    // ���ع�˾��Ϣ
+    // 加载公司信息
     this.loadCompanyInfo();
   },
   methods: {
@@ -352,23 +353,23 @@ export default {
       try {
         this.loading = true;
         
-        // ���û���Ϣ�л�ȡ companyId
+        // 从用户信息中获取 companyId
         if (!this.currentUser || !this.currentUser.companyId) {
-          this.$message.warning('δ�ҵ������Ĺ�˾��Ϣ');
+          this.$message.warning('未找到你的公司信息');
           this.loading = false;
           return;
         }
         
-        // ֱ��ͨ�� companyId ��ȡ��˾��Ϣ
+        // 直接通过 companyId 获取公司信息
         const response = await this.$axios.get(
           this.$apiBaseUrl + '/company/detail/' + this.currentUser.companyId
         );
         
         if (response.data.code === 200 && response.data.data) {
-          // �ҵ���Ӧ�Ĺ�˾
+          // 找到对应的公司
           this.companyInfo = response.data.data;
           
-          // ��ʼ���༭���
+          // 初始化编辑表单
           this.editForm = {
             name: this.companyInfo.name,
             industry: this.companyInfo.industry,
@@ -378,14 +379,14 @@ export default {
             description: this.companyInfo.description
           };
           
-          // ����ͳ������
+          // 加载统计数据
           this.loadStats();
         } else {
-          this.$message.warning('δ�ҵ���˾��Ϣ������ϵ����Ա');
+          this.$message.warning('未找到公司信息，请联系管理员');
         }
       } catch (error) {
-        console.error('���ع�˾��Ϣʧ��:', error);
-        this.$message.error('���ع�˾��Ϣʧ��');
+        console.error('加载公司信息失败:', error);
+        this.$message.error('加载公司信息失败');
       } finally {
         this.loading = false;
       }
@@ -393,7 +394,7 @@ export default {
     
     async loadStats() {
       try {
-        // ����ְλ������ְλ�б�
+        // 获取职位数量和职位列表
         if (this.currentUser && this.currentUser.companyId && this.companyInfo) {
           const jobResponse = await this.$axios.get(
             this.$apiBaseUrl + '/job/company/' + encodeURIComponent(this.companyInfo.name)
@@ -404,7 +405,7 @@ export default {
             this.jobCount = jobs.length;
             this.companyJobs = jobs;
             
-            // ����ÿ��ְλ����������
+            // 统计每个职位的申请数量
             let totalApplicants = 0;
             for (const job of jobs) {
               try {
@@ -416,47 +417,47 @@ export default {
                   totalApplicants += job.applyCount;
                 }
               } catch (error) {
-                console.error('��ȡְλ��������ʧ��:', error);
+                console.error('获取职位申请数量失败:', error);
               }
             }
             this.applicantCount = totalApplicants;
           }
           
-          // ���ع�ע����
+          // 加载关注数量
           try {
             const followResponse = await this.$axios.get(
               this.$apiBaseUrl + '/user-follow-company/companies/' + this.currentUser.id
             );
             if (followResponse.data.code === 200) {
               const followedCompanies = followResponse.data.data || [];
-              // ɸѡ����ǰ��˾
+              // 筛选出当前公司
               const currentCompanyFollows = followedCompanies.filter(
                 c => c.id === this.companyInfo.id
               );
               this.followCount = currentCompanyFollows.length;
             }
           } catch (error) {
-            console.error('��ȡ��ע����ʧ��:', error);
+            console.error('获取关注数量失败:', error);
             this.followCount = 0;
           }
           
-          // �������������
+          // 加载最新申请人
           await this.loadRecentApplicants();
         }
         
-        // ��ȡ��˾��ʵ�����
+        // 获取公司的真实浏览量
         this.viewCount = await this.getViewCount();
         
-        // ��¼���
+        // 记录浏览
         await this.recordView();
       } catch (error) {
-        console.error('����ͳ������ʧ��:', error);
+        console.error('加载统计数据失败:', error);
       }
     },
     
     async loadRecentApplicants() {
       try {
-        // ��ȡ��˾����ְλ��������
+        // 获取公司所有职位的申请人
         const allApplicants = [];
         
         for (const job of this.companyJobs) {
@@ -474,23 +475,23 @@ export default {
               });
             }
           } catch (error) {
-            console.error('��ȡְλ������ʧ��:', error);
+            console.error('获取职位申请人失败:', error);
           }
         }
         
-        // ������ʱ������ȡ���10��
+        // 按时间排序并取前10条
         this.recentApplicants = allApplicants
           .sort((a, b) => new Date(b.applyTime) - new Date(a.applyTime))
           .slice(0, 10);
       } catch (error) {
-        console.error('�������������ʧ��:', error);
+        console.error('加载最新申请人失败:', error);
       }
     },
     
     toggleEdit() {
       this.isEditing = !this.isEditing;
       if (!this.isEditing) {
-        // ȡ���༭ʱ�ָ�ԭֵ
+        // 取消编辑时恢复原值
         this.editForm = {
           name: this.companyInfo.name,
           industry: this.companyInfo.industry,
@@ -520,29 +521,29 @@ export default {
           try {
             this.saving = true;
             
-            // ���ø��½ӿ�
+            // 调用更新接口
             const response = await this.$axios.put(
               this.$apiBaseUrl + '/company/update/' + this.companyInfo.id,
               this.editForm
             );
             
             if (response.data.code === 200) {
-              this.$message.success('��˾��Ϣ���³ɹ�');
+              this.$message.success('公司信息更新成功');
               
-              // ������ʾ����Ϣ
+              // 更新显示的信息
               this.companyInfo = { ...this.companyInfo, ...this.editForm };
               this.isEditing = false;
             } else {
-              this.$message.error(response.data.msg || '����ʧ��');
+              this.$message.error(response.data.msg || '保存失败');
             }
           } catch (error) {
-            console.error('���¹�˾��Ϣʧ��:', error);
-            this.$message.error('���¹�˾��Ϣʧ��');
+            console.error('更新公司信息失败:', error);
+            this.$message.error('更新公司信息失败');
           } finally {
             this.saving = false;
           }
         } else {
-          this.$message.warning('����д������Ϣ');
+          this.$message.warning('请填写完整信息');
           return false;
         }
       });
@@ -557,7 +558,7 @@ export default {
     },
     
     viewApplicants() {
-      // ��ת�� HR �������� - ��ѡ�˹���
+      // 跳转到 HR 个人中心 - 候选人管理
       this.$router.push({
         path: '/HrPerson',
         query: { tab: 'candidates' }
@@ -565,7 +566,7 @@ export default {
     },
     
     viewApplicantDetail(applicant) {
-      // ��ת�� HR �������Ĳ鿴����������
+      // 跳转到 HR 个人中心查看候选人详情
       this.$router.push({
         path: '/HrPerson',
         query: { 
@@ -592,17 +593,17 @@ export default {
     
     getStatusText(status) {
       const textMap = {
-        'new': '������',
-        'viewed': '�Ѳ鿴',
-        'interview': '������',
-        'hired': '��¼��',
-        'rejected': '�Ѿܾ�'
+        'new': '新申请',
+        'viewed': '已查看',
+        'interview': '面试中',
+        'hired': '已录用',
+        'rejected': '已拒绝'
       };
-      return textMap[status] || 'δ֪';
+      return textMap[status] || '未知';
     },
     
     formatTime(time) {
-      if (!time) return 'δ֪';
+      if (!time) return '未知';
       const date = new Date(time);
       const now = new Date();
       const diff = now - date;
@@ -612,11 +613,11 @@ export default {
       const days = Math.floor(diff / 86400000);
       
       if (minutes < 60) {
-        return minutes + '����ǰ';
+        return minutes + '分钟前';
       } else if (hours < 24) {
-        return hours + 'Сʱǰ';
+        return hours + '小时前';
       } else if (days < 7) {
-        return days + '��ǰ';
+        return days + '天前';
       } else {
         return date.toLocaleDateString('zh-CN', {
           month: '2-digit',
@@ -626,7 +627,7 @@ export default {
     },
     
     /**
-     * ��ȡ��˾�����
+     * 获取公司浏览量
      */
     async getViewCount() {
       try {
@@ -640,13 +641,13 @@ export default {
         }
         return 0;
       } catch (error) {
-        console.error('��ȡ�����ʧ��:', error);
+        console.error('获取浏览量失败:', error);
         return 0;
       }
     },
     
     /**
-     * ��¼���
+     * 记录浏览
      */
     async recordView() {
       try {
@@ -657,15 +658,15 @@ export default {
             {
               params: {
                 userId: this.currentUser ? this.currentUser.id : null,
-                ipAddress: null // ��˿��Դ������л�ȡIP
+                ipAddress: null // 后续可以从请求中获取IP
               }
             }
           );
-          console.log('�����¼�ѱ���');
+          console.log('浏览记录已被记录');
         }
       } catch (error) {
-        console.error('��¼���ʧ��:', error);
-        // ��¼ʧ�ܲ�Ӱ��ҳ����ʾ
+        console.error('记录浏览失败:', error);
+        // 记录失败不影响页面显示
       }
     },
     
@@ -688,7 +689,7 @@ export default {
     },
     
     /**
-     * ��ת����Ϣ����
+     * 跳转到消息中心
      */
     goToMessageCenter() {
       this.$router.push({
@@ -699,7 +700,7 @@ export default {
     logout() {
       sessionStorage.removeItem('user');
       this.$router.push('/');
-      this.$message.success('���˳���¼');
+      this.$message.success('已退出登录');
     }
   }
 }
@@ -933,7 +934,7 @@ export default {
   font-size: 15px;
 }
 
-/* ������������� */
+/* 最新申请人区块样式 */
 .applicants-section {
   background: white;
   border-radius: 12px;
@@ -997,7 +998,7 @@ export default {
   flex-shrink: 0;
 }
 
-/* ��˾ְλ�б����� */
+/* 公司职位列表样式 */
 .jobs-section {
   background: white;
   border-radius: 12px;

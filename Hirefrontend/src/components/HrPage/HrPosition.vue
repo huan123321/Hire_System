@@ -5,24 +5,24 @@
 
 
     <div class="container">
-      <!-- ҳ�����Ͳ�����ť -->
+      <!-- 页面标题和操作按钮 -->
       <div class="page-header">
         <h1 class="page-title">
           <i class="fas fa-list-alt"></i>
-          ְλ����
+          职位管理
         </h1>
-        <p class="page-subtitle">��������˾������ְλ��Ϣ</p>
+        <p class="page-subtitle">管理你公司发布的职位信息</p>
         <el-button type="primary" size="large" @click="showCreateDialog" icon="el-icon-plus">
-          ������ְλ
+          发布新职位
         </el-button>
       </div>
 
-      <!-- ����״̬ -->
+      <!-- 加载状态 -->
       <div v-if="loading" class="loading-container">
         <el-skeleton :rows="8" animated />
       </div>
 
-      <!-- ְλ�б� -->
+      <!-- 职位列表 -->
       <div v-else-if="jobList.length > 0" class="job-management">
         <div v-for="job in pagedJobs" :key="job.id" class="job-card">
           <div class="job-header">
@@ -49,7 +49,7 @@
             </div>
             <div class="job-status">
               <el-tag :type="job.status === 'active' ? 'success' : 'info'" size="medium">
-                {{ job.status === 'active' ? '��Ƹ��' : '���¼�' }}
+                {{ job.status === 'active' ? '招聘中' : '已下线' }}
               </el-tag>
             </div>
           </div>
@@ -65,21 +65,21 @@
           </div>
 
           <div class="job-description">
-            {{ job.description || '����ְλ����' }}
+            {{ job.description || '暂无职位描述' }}
           </div>
 
           <div class="job-stats">
             <div class="stat-item">
               <i class="fas fa-eye"></i>
-              <span>{{ job.viewCount || 0 }} �����</span>
+              <span>{{ job.viewCount || 0 }} 次浏览</span>
             </div>
             <div class="stat-item">
               <i class="fas fa-users"></i>
-              <span>{{ job.applicationCount || 0 }} ������</span>
+              <span>{{ job.applicationCount || 0 }} 份申请</span>
             </div>
             <div class="stat-item">
               <i class="fas fa-clock"></i>
-              <span>������ {{ formatDate(job.createTime) }}</span>
+              <span>发布于 {{ formatDate(job.createTime) }}</span>
             </div>
           </div>
 
@@ -89,40 +89,40 @@
               size="small" 
               @click="viewJobDetail(job)"
               icon="el-icon-view">
-              �鿴����
+              查看详情
             </el-button>
             <el-button 
               type="success" 
               size="small" 
               @click="viewApplicants(job)"
               icon="el-icon-user">
-              �鿴������ ({{ job.applicationCount || 0 }})
+              查看候选人 ({{ job.applicationCount || 0 }})
             </el-button>
             <el-button 
               type="warning" 
               size="small" 
               @click="editJob(job)"
               icon="el-icon-edit">
-              �༭
+              编辑
             </el-button>
             <el-button 
               :type="job.status === 'active' ? 'warning' : 'success'" 
               size="small" 
               @click="toggleJobStatus(job)"
               :icon="job.status === 'active' ? 'el-icon-close' : 'el-icon-check'">
-              {{ job.status === 'active' ? '�¼�' : '�����ϼ�' }}
+              {{ job.status === 'active' ? '下线' : '重新上架' }}
             </el-button>
             <el-button 
               type="danger" 
               size="small" 
               @click="deleteJob(job)"
               icon="el-icon-delete">
-              ɾ��
+              删除
             </el-button>
           </div>
         </div>
 
-        <!-- ��ҳ -->
+        <!-- 分页 -->
         <div class="pagination">
           <el-pagination
             background
@@ -135,59 +135,59 @@
         </div>
       </div>
 
-      <!-- ��״̬ -->
+      <!-- 空状态 -->
       <div v-else class="empty-state">
         <i class="fas fa-briefcase empty-icon"></i>
-        <h3>����ְλ</h3>
-        <p>����û�з����κ�ְλ��������Ͻǰ�ť������һ��ְλ�ɣ�</p>
+        <h3>暂无职位</h3>
+        <p>你还没有发布任何职位，点击右上角按钮发布一个职位吧！</p>
         <el-button type="primary" @click="showCreateDialog" icon="el-icon-plus">
-          ������ְλ
+          发布新职位
         </el-button>
       </div>
     </div>
 
-    <!-- ����/�༭ְλ�Ի��� -->
+    <!-- 新建/编辑职位对话框 -->
     <el-dialog 
-      :title="isEditing ? '�༭ְλ' : '������ְλ'" 
+      :title="isEditing ? '编辑职位' : '发布新职位'" 
       :visible.sync="dialogVisible" 
       width="700px"
       :close-on-click-modal="false">
       <el-form :model="jobForm" :rules="jobRules" ref="jobForm" label-width="120px">
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="ְλ����" prop="title">
-              <el-input v-model="jobForm.title" placeholder="���磺Java�߼���������ʦ"></el-input>
+            <el-form-item label="职位名称" prop="title">
+              <el-input v-model="jobForm.title" placeholder="例如：Java高级开发工程师"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="н�ʷ�Χ" prop="salary">
-              <el-input v-model="jobForm.salary" placeholder="���磺15k-25k"></el-input>
+            <el-form-item label="薪资范围" prop="salary">
+              <el-input v-model="jobForm.salary" placeholder="例如：15k-25k"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="�����ص�" prop="city">
-              <el-select v-model="jobForm.city" placeholder="��ѡ�����" style="width: 100%">
-                <el-option label="����" value="����"></el-option>
-                <el-option label="�Ϻ�" value="�Ϻ�"></el-option>
-                <el-option label="����" value="����"></el-option>
-                <el-option label="����" value="����"></el-option>
-                <el-option label="����" value="����"></el-option>
-                <el-option label="�ɶ�" value="�ɶ�"></el-option>
-                <el-option label="�人" value="�人"></el-option>
-                <el-option label="�Ͼ�" value="�Ͼ�"></el-option>
+            <el-form-item label="工作地点" prop="city">
+              <el-select v-model="jobForm.city" placeholder="请选择城市" style="width: 100%">
+                <el-option label="北京" value="北京"></el-option>
+                <el-option label="上海" value="上海"></el-option>
+                <el-option label="广州" value="广州"></el-option>
+                <el-option label="深圳" value="深圳"></el-option>
+                <el-option label="杭州" value="杭州"></el-option>
+                <el-option label="成都" value="成都"></el-option>
+                <el-option label="武汉" value="武汉"></el-option>
+                <el-option label="南京" value="南京"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="����Ҫ��" prop="experience">
-              <el-select v-model="jobForm.experience" placeholder="��ѡ����Ҫ��" style="width: 100%">
-                <el-option label="Ӧ����" value="Ӧ����"></el-option>
-                <el-option label="1-3��" value="1-3��"></el-option>
-                <el-option label="3-5��" value="3-5��"></el-option>
-                <el-option label="5������" value="5������"></el-option>
+            <el-form-item label="经验要求" prop="experience">
+              <el-select v-model="jobForm.experience" placeholder="请选择经验要求" style="width: 100%">
+                <el-option label="应届生" value="应届生"></el-option>
+                <el-option label="1-3年" value="1-3年"></el-option>
+                <el-option label="3-5年" value="3-5年"></el-option>
+                <el-option label="5年以上" value="5年以上"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -195,45 +195,45 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="ѧ��Ҫ��" prop="education">
-              <el-select v-model="jobForm.education" placeholder="��ѡ��ѧ��Ҫ��" style="width: 100%">
-                <el-option label="��ר" value="��ר"></el-option>
-                <el-option label="����" value="����"></el-option>
-                <el-option label="˶ʿ" value="˶ʿ"></el-option>
-                <el-option label="��ʿ" value="��ʿ"></el-option>
+            <el-form-item label="学历要求" prop="education">
+              <el-select v-model="jobForm.education" placeholder="请选择学历要求" style="width: 100%">
+                <el-option label="大专" value="大专"></el-option>
+                <el-option label="本科" value="本科"></el-option>
+                <el-option label="硕士" value="硕士"></el-option>
+                <el-option label="博士" value="博士"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="ְλ��ǩ" prop="tags">
-              <el-input v-model="jobForm.tags" placeholder="�����ǩ�ö��ŷָ���磺Java,Spring,MySQL"></el-input>
+            <el-form-item label="职位标签" prop="tags">
+              <el-input v-model="jobForm.tags" placeholder="多个标签用逗号分隔，例如：Java,Spring,MySQL"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-form-item label="ְλ����" prop="description">
+        <el-form-item label="职位描述" prop="description">
           <el-input 
             v-model="jobForm.description" 
             type="textarea" 
             :rows="6"
-            placeholder="����ϸ����ְλҪ��ְ�����Ϣ">
+            placeholder="请详细描述职位要求职责等信息">
           </el-input>
         </el-form-item>
 
-        <el-form-item label="��ְҪ��" prop="requirements">
+        <el-form-item label="任职要求" prop="requirements">
           <el-input 
             v-model="jobForm.requirements" 
             type="textarea" 
             :rows="4"
-            placeholder="��������ְλ����ְҪ��">
+            placeholder="请输入该职位的任职要求">
           </el-input>
         </el-form-item>
       </el-form>
 
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">ȡ ��</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitJob" :loading="submitting">
-          {{ isEditing ? '�� ��' : '�� ��' }}
+          {{ isEditing ? '保 存' : '发 布' }}
         </el-button>
       </div>
     </el-dialog>
@@ -243,10 +243,11 @@
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue';
 
 export default {
   name: 'HrPosition',
-  components: {},
+  components: { AppHeader },
   data() {
     return {
       currentUser: null,
@@ -257,12 +258,12 @@ export default {
       pageSize: 10,
       total: 0,
       
-      // �Ի������
+      // 对话框状态
       dialogVisible: false,
       isEditing: false,
       submitting: false,
       
-      // ְλ���
+      // 职位表单
       jobForm: {
         title: '',
         salary: '',
@@ -274,34 +275,34 @@ export default {
         requirements: ''
       },
       
-      // �����֤����
+      // 表单验证规则
       jobRules: {
         title: [
-          { required: true, message: '������ְλ����', trigger: 'blur' }
+          { required: true, message: '请输入职位名称', trigger: 'blur' }
         ],
         salary: [
-          { required: true, message: '������н�ʷ�Χ', trigger: 'blur' }
+          { required: true, message: '请输入薪资范围', trigger: 'blur' }
         ],
         city: [
-          { required: true, message: '��ѡ�����ص�', trigger: 'change' }
+          { required: true, message: '请选择工作地点', trigger: 'change' }
         ],
         experience: [
-          { required: true, message: '��ѡ����Ҫ��', trigger: 'change' }
+          { required: true, message: '请选择经验要求', trigger: 'change' }
         ],
         education: [
-          { required: true, message: '��ѡ��ѧ��Ҫ��', trigger: 'change' }
+          { required: true, message: '请选择学历要求', trigger: 'change' }
         ]
       }
     }
   },
   created() {
-    // ��ȡ��ǰ�û���Ϣ
+    // 获取当前用户信息
     const userStr = sessionStorage.getItem('user');
     if (userStr) {
       this.currentUser = JSON.parse(userStr);
     }
     
-    // ���ع�˾��Ϣ
+    // 加载公司信息
     this.loadCompanyInfo();
   },
   computed: {
@@ -314,27 +315,27 @@ export default {
     async loadCompanyInfo() {
       try {
         if (!this.currentUser || !this.currentUser.companyId) {
-          this.$message.warning('δ�ҵ������Ĺ�˾��Ϣ');
+          this.$message.warning('未找到你的公司信息');
           this.loading = false;
           return;
         }
         
-        // ��ȡ��˾��Ϣ
+        // 获取公司信息
         const response = await this.$axios.get(
           this.$apiBaseUrl + '/company/detail/' + this.currentUser.companyId
         );
         
         if (response.data.code === 200 && response.data.data) {
           this.companyInfo = response.data.data;
-          // ���ظù�˾��ְλ�б�
+          // 加载该公司的职位列表
           this.loadJobs();
         } else {
-          this.$message.error('��ȡ��˾��Ϣʧ��');
+          this.$message.error('获取公司信息失败');
           this.loading = false;
         }
       } catch (error) {
-        console.error('���ع�˾��Ϣʧ��:', error);
-        this.$message.error('���ع�˾��Ϣʧ��');
+        console.error('加载公司信息失败:', error);
+        this.$message.error('加载公司信息失败');
         this.loading = false;
       }
     },
@@ -348,7 +349,7 @@ export default {
           return;
         }
         
-        // ��ȡ��˾������ְλ�б�
+        // 获取公司下的职位列表
         const response = await this.$axios.get(
           this.$apiBaseUrl + '/job/company/' + encodeURIComponent(this.companyInfo.name)
         );
@@ -357,12 +358,12 @@ export default {
           this.jobList = response.data.data || [];
           this.total = this.jobList.length;
           
-          // Ϊÿ��ְλ��ȡ��������
+          // 为每个职位获取申请数量
           await this.loadApplicationCounts();
         }
       } catch (error) {
-        console.error('����ְλ�б�ʧ��:', error);
-        this.$message.error('����ְλ�б�ʧ��');
+        console.error('加载职位列表失败:', error);
+        this.$message.error('加载职位列表失败');
       } finally {
         this.loading = false;
       }
@@ -370,7 +371,7 @@ export default {
     
     async loadApplicationCounts() {
       try {
-        // Ϊÿ��ְλ��ȡ��������
+        // 为每个职位获取申请数量
         for (let job of this.jobList) {
           try {
             const response = await this.$axios.get(
@@ -380,12 +381,12 @@ export default {
               job.applicationCount = response.data.data || 0;
             }
           } catch (error) {
-            console.error(`��ȡְλ ${job.id} ��������ʧ��:`, error);
+            console.error(`获取职位 ${job.id} 申请数量失败:`, error);
             job.applicationCount = 0;
           }
         }
       } catch (error) {
-        console.error('������ȡ��������ʧ��:', error);
+        console.error('批量获取申请数量失败:', error);
       }
     },
     
@@ -433,7 +434,7 @@ export default {
           try {
             this.submitting = true;
             
-            // ��ӹ�˾��Ϣ
+            // 添加公司信息
             const jobData = {
               ...this.jobForm,
               companyName: this.companyInfo.name,
@@ -444,13 +445,13 @@ export default {
             
             let response;
             if (this.isEditing) {
-              // ����ְλ
+              // 更新职位
               response = await this.$axios.put(
                 this.$apiBaseUrl + '/job/' + this.jobForm.id,
                 jobData
               );
             } else {
-              // ����ְλ
+              // 创建职位
               response = await this.$axios.post(
                 this.$apiBaseUrl + '/job',
                 jobData
@@ -458,20 +459,20 @@ export default {
             }
             
             if (response.data.code === 200) {
-              this.$message.success(this.isEditing ? 'ְλ���³ɹ�' : 'ְλ�����ɹ�');
+              this.$message.success(this.isEditing ? '职位更新成功' : '职位发布成功');
               this.dialogVisible = false;
-              this.loadJobs(); // ���¼����б�
+              this.loadJobs(); // 重新加载列表
             } else {
-              this.$message.error(response.data.msg || '����ʧ��');
+              this.$message.error(response.data.msg || '保存失败');
             }
           } catch (error) {
-            console.error('�ύְλʧ��:', error);
-            this.$message.error('����ʧ�ܣ����Ժ�����');
+            console.error('提交职位失败:', error);
+            this.$message.error('保存失败，请稍后重试');
           } finally {
             this.submitting = false;
           }
         } else {
-          this.$message.warning('����д������Ϣ');
+          this.$message.warning('请填写完整信息');
           return false;
         }
       });
@@ -480,14 +481,14 @@ export default {
     async toggleJobStatus(job) {
       try {
         const newStatus = job.status === 'active' ? 'inactive' : 'active';
-        const action = newStatus === 'active' ? '�ϼ�' : '�¼�';
+        const action = newStatus === 'active' ? '上架' : '下线';
         
         const confirmResult = await this.$confirm(
-          `ȷ��Ҫ${action}��ְλ��`,
-          '��ʾ',
+          `确定要${action}该职位吗？`,
+          '提示',
           {
-            confirmButtonText: 'ȷ��',
-            cancelButtonText: 'ȡ��',
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
             type: 'warning'
           }
         ).catch(() => 'cancel');
@@ -502,15 +503,15 @@ export default {
         );
         
         if (response.data.code === 200) {
-          this.$message.success(`${action}�ɹ�`);
-          this.loadJobs(); // ���¼����б�
+          this.$message.success(`${action}成功`);
+          this.loadJobs(); // 重新加载列表
         } else {
-          this.$message.error(response.data.msg || '����ʧ��');
+          this.$message.error(response.data.msg || '操作失败');
         }
       } catch (error) {
         if (error !== 'cancel') {
-          console.error('�л�ְλ״̬ʧ��:', error);
-          this.$message.error('����ʧ�ܣ����Ժ�����');
+          console.error('切换职位状态失败:', error);
+          this.$message.error('操作失败，请稍后重试');
         }
       }
     },
@@ -518,11 +519,11 @@ export default {
     async deleteJob(job) {
       try {
         const confirmResult = await this.$confirm(
-          `ȷ��Ҫɾ��ְλ��${job.title}���𣿴˲������ɻָ���`,
-          '����',
+          `确定要删除职位「${job.title}」吗？此操作不可恢复！`,
+          '警告',
           {
-            confirmButtonText: 'ȷ��ɾ��',
-            cancelButtonText: 'ȡ��',
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
             type: 'error'
           }
         ).catch(() => 'cancel');
@@ -536,40 +537,40 @@ export default {
         );
         
         if (response.data.code === 200) {
-          this.$message.success('ְλɾ���ɹ�');
-          this.loadJobs(); // ���¼����б�
+          this.$message.success('职位删除成功');
+          this.loadJobs(); // 重新加载列表
         } else {
-          this.$message.error(response.data.msg || 'ɾ��ʧ��');
+          this.$message.error(response.data.msg || '删除失败');
         }
       } catch (error) {
         if (error !== 'cancel') {
-          console.error('ɾ��ְλʧ��:', error);
-          this.$message.error('ɾ��ʧ�ܣ����Ժ�����');
+          console.error('删除职位失败:', error);
+          this.$message.error('删除失败，请稍后重试');
         }
       }
     },
     
     viewJobDetail(job) {
-      // HR �鿴ְλ���� - ֱ���ڵ�ǰҳ��ʾ
+      // HR 查看职位详情 - 直接在当前页显示
       this.$alert(
         `<div style="text-align: left; line-height: 1.8;">
-          <p><strong>ְλ���ƣ�</strong>${job.title}</p>
-          <p><strong>н�ʷ�Χ��</strong>${job.salary}</p>
-          <p><strong>�����ص㣺</strong>${job.city}</p>
-          <p><strong>����Ҫ��</strong>${job.experience}</p>
-          <p><strong>ѧ��Ҫ��</strong>${job.education}</p>
-          <p><strong>ְλ��ǩ��</strong>${job.tags || '��'}</p>
+          <p><strong>职位名称：</strong>${job.title}</p>
+          <p><strong>薪资范围：</strong>${job.salary}</p>
+          <p><strong>工作地点：</strong>${job.city}</p>
+          <p><strong>经验要求：</strong>${job.experience}</p>
+          <p><strong>学历要求：</strong>${job.education}</p>
+          <p><strong>职位标签：</strong>${job.tags || '无'}</p>
           <hr>
-          <p><strong>ְλ������</strong></p>
-          <p>${job.description || '��������'}</p>
+          <p><strong>职位描述：</strong></p>
+          <p>${job.description || '暂无描述'}</p>
         </div>`,
-        'ְλ����',
-        { dangerouslyUseHTMLString: true, confirmButtonText: '֪����' }
+        '职位详情',
+        { dangerouslyUseHTMLString: true, confirmButtonText: '知道了' }
       );
     },
     
     viewApplicants(job) {
-      // HR �鿴������ - ��ת�� HR �������ĺ�ѡ�˹���ҳ��
+      // HR 查看候选人 - 跳转到 HR 个人中心的候选人管理页面
       this.$router.push({
         path: '/HrPerson',
         query: { tab: 'candidates', jobId: job.id }
@@ -578,11 +579,11 @@ export default {
     
     handlePageChange(page) {
       this.currentPage = page;
-      // �������ʵ�ַ�ҳ�߼�
+      // 后续可实际实现分页逻辑
     },
     
     formatDate(dateString) {
-      if (!dateString) return 'δ֪';
+      if (!dateString) return '未知';
       const date = new Date(dateString);
       return date.toLocaleDateString('zh-CN');
     },
@@ -600,7 +601,7 @@ export default {
     },
     
     /**
-     * ��ת����Ϣ����
+     * 跳转到消息中心
      */
     goToMessageCenter() {
       this.$router.push({
@@ -611,7 +612,7 @@ export default {
     logout() {
       sessionStorage.removeItem('user');
       this.$router.push('/');
-      this.$message.success('���˳���¼');
+      this.$message.success('已退出登录');
     }
   }
 }

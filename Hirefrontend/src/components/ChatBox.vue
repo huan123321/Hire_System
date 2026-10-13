@@ -29,9 +29,11 @@
         :key="index" 
         :class="['message-item', msg.isSelf ? 'self' : 'other']">
         <div class="message-avatar">
-          <i class="el-icon-user"></i>
+          <img v-if="getSenderAvatar(msg)" :src="getSenderAvatar(msg)" class="avatar-img" alt="头像" />
+          <i v-else class="el-icon-user"></i>
         </div>
         <div class="message-content">
+          <div class="message-name">{{ getSenderName(msg) }}</div>
           <div class="message-bubble">
             {{ msg.content }}
           </div>
@@ -66,20 +68,21 @@
 <script>
 import AppHeader from '@/components/common/AppHeader.vue'
 import chatWebSocket from '@/utils/websocket';
+import { defaultAvatar } from '@/utils/avatar';
 
 export default {
   name: 'ChatBox',
   components: { AppHeader },
   props: {
-    // 聊天对象ID (公司ID或用户ID)
+    // 聊天对象ID（对方用户ID，求职者 ↔ HR）
     partnerId: {
       type: [Number, String],
       default: null
     },
-    // 聊天对象类型: 'user' 或 'company'
+    // 聊天对象类型（统一为 'user'，保留参数兼容旧调用）
     partnerType: {
       type: String,
-      default: ''
+      default: 'user'
     },
     // 聊天对象名称
     partnerName: {
@@ -97,7 +100,9 @@ export default {
       internalPartnerId: null,
       internalPartnerType: '',
       connectionStatus: chatWebSocket.isConnected() ? 'connected' : 'disconnected',
-      connectionTimeout: null
+      connectionTimeout: null,
+      // senderId -> { name, avatar } 用户信息映射（用于显示对方头像和用户名）
+      userInfoMap: {}
     };
   },
   computed: {
@@ -134,7 +139,8 @@ export default {
     
     // 连接 WebSocket（如果未连接）
     if (this.currentUser) {
-      const userType = this.currentUser.role === 0 ? 'user' : 'company';
+      // 聊天统一按用户维度：求职者和 HR 都以用户身份连接
+      const userType = 'user';
       console.log('ChatBox: 准备连接 WebSocket，userId:', this.currentUser.id, ', userType:', userType);
       
       // 设置连接超时提示
@@ -188,23 +194,9 @@ export default {
         const partnerId = this.internalPartnerId || this.partnerId;
         const partnerType = this.internalPartnerType || this.partnerType;
         
-        // 根据聊天对象类型确定查询参数
-        if (partnerType === 'company') {
-          // 求职者与公司聊天
-          if (this.currentUser.role === 0) {
-            // 求职者：userId1=求职者ID, userId2=公司ID
-            userId1 = this.currentUser.id;
-            userId2 = partnerId;
-          } else {
-            // HR：userId1=公司ID, userId2=求职者ID
-            userId1 = this.currentUser.companyId || this.currentUser.id;
-            userId2 = partnerId;
-          }
-        } else {
-          // 用户与用户聊天（HR与候选人）
-          userId1 = this.currentUser.id;
-          userId2 = partnerId;
-        }
+        // 聊天统一按用户维度：双方都是用户 ID（求职者 ↔ HR）
+        userId1 = this.currentUser.id;
+        userId2 = partnerId;
         
         console.log('加载历史消息，参数:', { userId1, userId2, partnerType });
         
@@ -222,6 +214,9 @@ export default {
           }));
           
           console.log('历史消息加载成功，共', this.messages.length, '条');
+          
+          // 加载消息发送者的头像和用户名
+          this.loadSenderUsers(this.messages);
           
           this.$nextTick(() => {
             this.scrollToBottom();
@@ -248,13 +243,13 @@ export default {
       this.sending = true;
       const clientMsgId = `${this.currentUser.id}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-      // 构建消息对象
+      // 构建消息对象（聊天统一按用户维度，接收方恒为用户）
       const message = {
         type: 'chat',
         clientMsgId,
         senderId: this.currentUser.id,
         receiverId: this.internalPartnerId || this.partnerId,
-        receiverType: this.internalPartnerType || this.partnerType,
+        receiverType: 'user',
         content: this.inputMessage,
         messageType: 'text'
       };
@@ -326,6 +321,9 @@ export default {
             isSelf: msgData.senderId === this.currentUser.id
           });
           
+          // 补查新发送者的用户信息（头像/昵称）
+          this.loadSenderUsers(this.messages);
+          
           this.$nextTick(() => {
             this.scrollToBottom();
           });
@@ -338,6 +336,59 @@ export default {
           });
         }
       }
+    },
+
+    /**
+     * 加载消息发送者的用户信息（昵称/头像），填充 userInfoMap
+     */
+    async loadSenderUsers(messages) {
+      const currentUserId = this.currentUser ? String(this.currentUser.id) : null;
+      const senderIds = [...new Set(
+        (messages || [])
+          .map(m => m.senderId)
+          .filter(id => id != null && String(id) !== currentUserId && !this.userInfoMap[String(id)])
+      )];
+      
+      // 并发查询用户信息
+      await Promise.all(senderIds.map(async (senderId) => {
+        try {
+          const res = await this.$axios.get(this.$apiBaseUrl + '/user/' + senderId);
+          if (res.data.code === 200 && res.data.data) {
+            const u = res.data.data;
+            this.$set(this.userInfoMap, String(senderId), {
+              name: u.nickname || u.realName || u.username || '用户',
+              avatar: u.avatar || '',
+              gender: u.gender
+            });
+          } else {
+            this.$set(this.userInfoMap, String(senderId), { name: '用户', avatar: '' });
+          }
+        } catch (e) {
+          this.$set(this.userInfoMap, String(senderId), { name: '用户', avatar: '' });
+        }
+      }));
+    },
+
+    /**
+     * 获取消息发送者显示名
+     */
+    getSenderName(msg) {
+      if (msg.isSelf) {
+        return (this.currentUser && (this.currentUser.nickname || this.currentUser.realName || this.currentUser.username)) || '我';
+      }
+      const info = this.userInfoMap[String(msg.senderId)];
+      return (info && info.name) || '用户';
+    },
+
+    /**
+     * 获取消息发送者头像
+     */
+    getSenderAvatar(msg) {
+      if (msg.isSelf) {
+        return (this.currentUser && this.currentUser.avatar) || defaultAvatar(this.currentUser && this.currentUser.gender);
+      }
+      const info = this.userInfoMap[String(msg.senderId)];
+      return (info && info.avatar) || defaultAvatar(info && info.gender);
     },
 
     handleSocketStatus(status) {
@@ -488,10 +539,29 @@ export default {
   color: white;
   font-size: 20px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .message-content {
   max-width: 60%;
+}
+
+.message-name {
+  font-size: 12px;
+  color: #909399;
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+
+.message-item.self .message-name {
+  text-align: right;
 }
 
 .message-bubble {
@@ -500,6 +570,7 @@ export default {
   background: white;
   word-wrap: break-word;
   line-height: 1.6;
+  white-space: pre-line;
 }
 
 .message-item.self .message-bubble {

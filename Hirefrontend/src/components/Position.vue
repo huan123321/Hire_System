@@ -108,7 +108,7 @@
             </div>
             <div class="company-info">
               <div class="company-logo">
-                <i class="fas fa-building"></i>
+                <img :src="companyLogo(job)" :alt="job.companyName" />
               </div>
               <div class="company-detail">
                 <div class="company-name">{{ job.companyName }}</div>
@@ -140,6 +140,7 @@
 
 <script>
 import AppHeader from '@/components/common/AppHeader.vue'
+import { getCompanyLogo } from '@/utils/companyLogo';
 
 export default {
   name: 'JobHome',
@@ -171,6 +172,14 @@ export default {
     this.loadFavorites();
   },
   methods: {
+    // 职位所属公司头像：优先 logo，否则按公司名/行业生成默认头像
+    companyLogo(job) {
+      return getCompanyLogo({
+        logo: job.companyLogo,
+        name: job.companyName,
+        industry: job.industry
+      });
+    },
     async loadJobs() {
       try {
         const params = { page: this.currentPage, size: 10, keyword: this.searchKeyword, city: this.searchCity };
@@ -204,6 +213,7 @@ export default {
       }
     
       // 显示确认对话框
+      let loading = null;
       try {
         const confirmResult = await this.$confirm(
           `确定要申请「${job.title}」这个职位吗？`,
@@ -224,7 +234,7 @@ export default {
         }
     
         // 显示加载提示
-        const loading = this.$loading({
+        loading = this.$loading({
           lock: true,
           text: '正在申请职位...',
           spinner: 'el-icon-loading',
@@ -245,6 +255,7 @@ export default {
         );
     
         loading.close();
+        loading = null;
     
         if (response.data.code === 200) {
           this.$message({
@@ -259,9 +270,10 @@ export default {
           });
         }
       } catch (error) {
-        // 关闭加载提示（如果有的话）
-        if (this.$loading && this.$loading.service) {
-          this.$loading.service().close();
+        // 关闭加载提示（防止请求失败后一直卡在加载层）
+        if (loading) {
+          loading.close();
+          loading = null;
         }
             
         console.error('职位申请失败:', error);
@@ -585,6 +597,13 @@ body {
   align-items: center;
   justify-content: center;
   color: #909399;
+}
+
+.company-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
 }
 
 .company-detail {

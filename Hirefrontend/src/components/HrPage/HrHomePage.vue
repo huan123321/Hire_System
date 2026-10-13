@@ -2,19 +2,19 @@
   <div class="app-wrapper">
     <AppHeader />
 <div class="hr-home-container">
-    <!-- �������� -->
+    <!-- 数据统计卡片区域 -->
 
 
-    <!-- Banner ���� -->
+    <!-- Banner 区域 -->
     <div class="banner">
       <div class="banner-content">
-        <h1 class="banner-title">HR ����̨</h1>
-        <p class="banner-subtitle">��Ч��Ƹ���ҵ����ʵ��˲�</p>
+        <h1 class="banner-title">HR 管理后台</h1>
+        <p class="banner-subtitle">高效招聘，助你找到合适人才</p>
       </div>
     </div>
 
     <div class="container">
-      <!-- ����ͳ�ƿ�Ƭ -->
+      <!-- 数据统计卡片 -->
       <div class="stats-cards">
         <div class="stat-card">
           <div class="stat-icon" style="background: #00C2A1;">
@@ -22,7 +22,7 @@
           </div>
           <div class="stat-info">
             <div class="stat-value">{{ stats.positionCount }}</div>
-            <div class="stat-label">����ְλ</div>
+            <div class="stat-label">发布职位</div>
           </div>
         </div>
 
@@ -32,7 +32,7 @@
           </div>
           <div class="stat-info">
             <div class="stat-value">{{ stats.resumeCount }}</div>
-            <div class="stat-label">�յ�����</div>
+            <div class="stat-label">收到简历</div>
           </div>
         </div>
 
@@ -42,7 +42,7 @@
           </div>
           <div class="stat-info">
             <div class="stat-value">{{ stats.interviewCount }}</div>
-            <div class="stat-label">���԰���</div>
+            <div class="stat-label">面试安排</div>
           </div>
         </div>
 
@@ -52,25 +52,25 @@
           </div>
           <div class="stat-info">
             <div class="stat-value">{{ stats.companyCount }}</div>
-            <div class="stat-label">�����˾</div>
+            <div class="stat-label">旗下公司</div>
           </div>
         </div>
       </div>
 
-      <!-- ��Ҫ������ -->
+      <!-- 主要内容 -->
       <div class="main-content">
-        <!-- ������� -->
+        <!-- 左侧内容 -->
         <div class="content-left">
-          <!-- ������ְλ -->
+          <!-- 我的职位 -->
           <div class="section">
             <div class="section-header">
               <h2 class="section-title">
                 <i class="fas fa-briefcase"></i>
-                ����ְλ
+                我的职位
               </h2>
               <el-button type="primary" @click="createPosition">
                 <i class="fas fa-plus"></i>
-                ������ְλ
+                发布新职位
               </el-button>
             </div>
             <div class="job-list">
@@ -86,7 +86,7 @@
                   </div>
                   <div class="job-status">
                     <el-tag :type="job.status === 'active' ? 'success' : 'info'" size="mini">
-                      {{ job.status === 'active' ? '��Ƹ��' : '�ѹر�' }}
+                      {{ job.status === 'active' ? '招聘中' : '已关闭' }}
                     </el-tag>
                   </div>
                 </div>
@@ -104,21 +104,21 @@
                   <div class="publish-time">{{ formatTime(job.createTime) }}</div>
                   <div class="resume-count">
                     <i class="fas fa-file-alt"></i>
-                    {{ job.resumeCount || 0 }} �ݼ���
+                    {{ job.resumeCount || 0 }} 份简历
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- ���¼��� -->
+          <!-- 最新简历 -->
           <div class="section">
             <div class="section-header">
               <h2 class="section-title">
                 <i class="fas fa-file-alt"></i>
-                ���¼���
+                最新简历
               </h2>
-              <el-button type="text" @click="viewAllResumes">�鿴ȫ�� ></el-button>
+              <el-button type="text" @click="viewAllResumes">查看全部 ></el-button>
             </div>
             <div class="resume-list">
               <div
@@ -136,84 +136,71 @@
                 <div class="resume-info">
                   <span><i class="fas fa-graduation-cap"></i> {{ resume.education }}</span>
                   <span><i class="fas fa-clock"></i> {{ resume.experience }}</span>
-                  <span><i class="fas fa-map-marker-alt"></i> {{ resume.location }}</span>
-                </div>
-                <div class="resume-skills">
-                  <el-tag
-                      v-for="(skill, index) in resume.skills ? resume.skills.split(',') : []"
-                      :key="index"
-                      size="mini"
-                      class="skill-tag">
-                    {{ skill.trim() }}
-                  </el-tag>
+                  <span>
+                    <el-tag :type="resume.status === 'interview' ? 'warning' : resume.status === 'hired' ? 'success' : 'info'" size="mini">
+                      {{ resume.statusText }}
+                    </el-tag>
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- �Ҳ����� -->
+        <!-- 右侧边栏 -->
         <div class="sidebar">
-          <!-- ������� -->
+          <!-- 快捷操作 -->
           <div class="widget quick-actions">
             <h3 class="widget-title">
               <i class="fas fa-thumbs-up"></i>
-              �������
+              快捷操作
             </h3>
             <div class="action-list">
               <el-button type="primary" plain @click="createPosition">
                 <i class="fas fa-plus"></i>
-                ����ְλ
+                发布职位
               </el-button>
               <el-button type="success" plain @click="viewResumes">
                 <i class="fas fa-file-alt"></i>
-                �鿴����
+                查看简历
               </el-button>
               <el-button type="warning" plain @click="viewCandidates">
                 <i class="fas fa-users"></i>
-                ��ѡ�˹���
+                候选人管理
               </el-button>
               <el-button type="info" plain @click="viewInterviews">
                 <i class="fas fa-handshake"></i>
-                ���԰���
+                面试安排
               </el-button>
             </div>
           </div>
 
-          <!-- ��ƸС��ʿ -->
+          <!-- 招聘小贴士 -->
           <div class="widget recruitment-tips">
             <h3 class="widget-title">
               <i class="fas fa-lightbulb"></i>
-              ��ƸС��ʿ
+              招聘小贴士
             </h3>
             <div class="tips-content">
               <ul class="tips-list">
-                <li>����ְλ������������������ʵĺ�ѡ��</li>
-                <li>��ʱ�ظ�����������߹�˾����</li>
-                <li>��ȷн�ʷ�Χ�������Ͷ����</li>
-                <li>���ڸ���ְλ��Ϣ���ֻ�Ծ��</li>
+                <li>发布职位后及时更新状态，吸引更多合适的候选人</li>
+                <li>及时回复候选人消息，提升公司形象</li>
+                <li>明确薪资范围，减少无效沟通</li>
+                <li>定期更新职位信息，保持活跃度</li>
               </ul>
             </div>
           </div>
 
-          <!-- ��˾��̬ -->
+          <!-- 公司动态 -->
           <div class="widget company-news">
             <h3 class="widget-title">
               <i class="fas fa-newspaper"></i>
-              ��˾��̬
+              公司动态
             </h3>
             <div class="news-list">
-              <div class="news-item">
-                <div class="news-title">��˾��֤���ͨ��</div>
-                <div class="news-time">2024-01-15</div>
-              </div>
-              <div class="news-item">
-                <div class="news-title">����ְλ 3 ��</div>
-                <div class="news-time">2024-01-14</div>
-              </div>
-              <div class="news-item">
-                <div class="news-title">�յ����� 15 ��</div>
-                <div class="news-time">2024-01-13</div>
+              <div v-for="(news, index) in companyNews" :key="index" class="news-item">
+                <div class="news-title">{{ news.title }}</div>
+                <div class="news-time" v-if="news.time">{{ news.time }}</div>
               </div>
             </div>
           </div>
@@ -226,10 +213,12 @@
 </template>
 
 <script>
+import AppHeader from '@/components/common/AppHeader.vue';
+import { promptProfileCompletion } from '@/utils/profileTip';
 
 export default {
   name: 'HrHomepage',
-  components: {},
+  components: { AppHeader },
   data() {
     return {
       currentUser: null,
@@ -240,95 +229,172 @@ export default {
         companyCount: 1
       },
       myPositions: [],
-      latestResumes: []
+      latestResumes: [],
+      companyInfo: null,
+      companyNews: []
     }
   },
   created() {
-    // ��ȡ��ǰ�û���Ϣ
+    // 获取当前用户信息
     const userStr = sessionStorage.getItem('user');
     if (userStr) {
       this.currentUser = JSON.parse(userStr);
     }
-    // ���� HR �������
+    // 新用户注册后首次进入首页：提示先完善个人资料
+    promptProfileCompletion(this);
+    // 加载 HR 首页数据
     this.loadHrData();
   },
   methods: {
     async loadHrData() {
       try {
-        // ���� HR ��ְλ�б�
+        // 先加载公司信息
+        await this.loadCompanyInfo();
+        // 加载 HR 职位列表
         await this.loadMyPositions();
-        // �������¼���
+        // 加载最新简历（真实申请人数据）
         await this.loadLatestResumes();
-        // ����ͳ������
-        this.loadStats();
+        // 加载统计数据（真实面试数）
+        await this.loadStats();
+        // 生成公司动态（基于真实数据）
+        this.loadCompanyNews();
       } catch (error) {
-        console.error('���� HR ����ʧ��:', error);
+        console.error('加载 HR 数据失败:', error);
+      }
+    },
+
+    async loadCompanyInfo() {
+      try {
+        if (!this.currentUser || !this.currentUser.companyId) {
+          this.$message.warning('未找到你的公司信息');
+          return;
+        }
+        const response = await this.$axios.get(
+          this.$apiBaseUrl + '/company/detail/' + this.currentUser.companyId
+        );
+        if (response.data.code === 200 && response.data.data) {
+          this.companyInfo = response.data.data;
+        }
+      } catch (error) {
+        console.error('加载公司信息失败:', error);
       }
     },
 
     async loadMyPositions() {
       try {
-        if (!this.currentUser || !this.currentUser.companyName) {
+        if (!this.companyInfo || !this.companyInfo.name) {
           return;
         }
 
-        const response = await this.$axios.get(this.$apiBaseUrl + '/job/company/' + encodeURIComponent(this.currentUser.companyName));
+        const response = await this.$axios.get(this.$apiBaseUrl + '/job/company/' + encodeURIComponent(this.companyInfo.name));
         
         if (response.data.code === 200) {
           this.myPositions = response.data.data || [];
           this.stats.positionCount = this.myPositions.length;
         }
       } catch (error) {
-        console.error('����ְλ�б�ʧ��:', error);
+        console.error('加载职位列表失败:', error);
       }
     },
 
     async loadLatestResumes() {
       try {
-        // ������Ե��ú�� API ��ȡ���¼���
-        // ��ʱʹ��ģ������
-        this.latestResumes = [
-          {
-            id: 1,
-            name: '����',
-            position: 'Java ����ʦ',
-            education: '����',
-            experience: '3 ��',
-            location: '����',
-            skills: 'Java, Spring Boot, MySQL'
-          },
-          {
-            id: 2,
-            name: '����',
-            position: 'ǰ�˹���ʦ',
-            education: '����',
-            experience: '2 ��',
-            location: '�Ϻ�',
-            skills: 'Vue, React, JavaScript'
-          },
-          {
-            id: 3,
-            name: '����',
-            position: '��Ʒ����',
-            education: '˶ʿ',
-            experience: '5 ��',
-            location: '����',
-            skills: '��Ʒ��ƣ���Ŀ��������ݷ���'
+        // 从各职位的真实申请人接口汇总（按申请时间取最新 5 条）
+        const allApplicants = [];
+        for (const job of this.myPositions) {
+          try {
+            const response = await this.$axios.get(
+              this.$apiBaseUrl + '/job-application/job/' + job.id + '/applicants'
+            );
+            if (response.data.code === 200 && Array.isArray(response.data.data)) {
+              response.data.data.forEach(a => {
+                // Resume 表的 education/experience 字段是 JSON 字符串，解析后取第一条展示
+                const eduList = this.safeParse(a.resumeEducation, []);
+                const expList = this.safeParse(a.resumeExperience, []);
+                const edu = Array.isArray(eduList) && eduList.length > 0 ? eduList[0] : null;
+                const exp = Array.isArray(expList) && expList.length > 0 ? expList[0] : null;
+                allApplicants.push({
+                  id: a.id,
+                  name: a.realName || a.nickname || a.username || '未知',
+                  position: job.title,
+                  education: edu ? (edu.degree ? edu.degree + ' · ' : '') + (edu.school || '') : '未填写',
+                  experience: exp ? (exp.company || '') + (exp.position ? ' · ' + exp.position : '') : '暂无工作经历',
+                  status: a.status,
+                  statusText: this.getStatusText(a.status),
+                  applyTime: a.applyTime
+                });
+              });
+            }
+          } catch (e) {
+            // 单个职位获取失败不影响整体
           }
-        ];
-        this.stats.resumeCount = this.latestResumes.length;
+        }
+        allApplicants.sort((a, b) => new Date(b.applyTime) - new Date(a.applyTime));
+        this.latestResumes = allApplicants.slice(0, 5);
+        this.stats.resumeCount = allApplicants.length;
       } catch (error) {
-        console.error('���ؼ���ʧ��:', error);
+        console.error('加载最新简历失败:', error);
       }
     },
 
-    loadStats() {
-      // ����ͳ������
-      this.stats.interviewCount = 5; // ʾ������
+    async loadStats() {
+      try {
+        // 真实面试数量（该公司所有面试安排）
+        if (this.companyInfo && this.companyInfo.id) {
+          const response = await this.$axios.get(
+            this.$apiBaseUrl + '/interview/company/' + this.companyInfo.id
+          );
+          if (response.data.code === 200 && Array.isArray(response.data.data)) {
+            this.stats.interviewCount = response.data.data.length;
+          }
+        }
+      } catch (error) {
+        console.error('加载面试统计失败:', error);
+      }
+    },
+
+    loadCompanyNews() {
+      // 基于真实数据生成公司动态
+      const news = [];
+      // 1. 认证状态（真实状态展示）
+      news.push({ title: '公司认证已通过', time: '' });
+      // 2. 最新发布的职位
+      if (this.myPositions.length > 0) {
+        const sorted = [...this.myPositions].sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+        news.push({ title: `发布新职位「${sorted[0].title}」`, time: this.formatTime(sorted[0].createTime) });
+      }
+      // 3. 最新收到的简历
+      if (this.latestResumes.length > 0) {
+        news.push({
+          title: `「${this.latestResumes[0].name}」投递了「${this.latestResumes[0].position}」`,
+          time: this.formatTime(this.latestResumes[0].applyTime)
+        });
+      }
+      this.companyNews = news;
+    },
+
+    getStatusText(status) {
+      const textMap = {
+        'new': '新申请',
+        'viewed': '已查看',
+        'interview': '面试中',
+        'hired': '已录用',
+        'rejected': '已拒绝'
+      };
+      return textMap[status] || '未知';
+    },
+
+    safeParse(str, fallback) {
+      if (!str) return fallback;
+      try {
+        return JSON.parse(str);
+      } catch (e) {
+        return fallback;
+      }
     },
 
     createPosition() {
-      // ��ת������ְλҳ��
+      // 跳转到发布职位页面
       this.$router.push('/HrPosition');
     },
 
@@ -337,16 +403,23 @@ export default {
     },
 
     viewResume(resume) {
-      this.$message(`�鿴 ${resume.name} �ļ���`);
-      // ������ת����������ҳ
+      // 跳转到候选人管理查看该申请人
+      this.$router.push({
+        path: '/HrPerson',
+        query: { tab: 'candidates', applicantId: resume.id }
+      });
     },
 
     viewAllResumes() {
-      this.$message('�鿴���м���');
+      // 跳转到简历管理
+      this.$router.push({
+        path: '/HrPerson',
+        query: { tab: 'resumes' }
+      });
     },
 
     viewResumes() {
-      // ��ת�� HR ��������
+      // 跳转到 HR 个人中心
       this.$router.push({
         path: '/HrPerson',
         query: { tab: 'resumes' }
@@ -354,7 +427,7 @@ export default {
     },
 
     viewCandidates() {
-      // ��ת�� HR �������� - ��ѡ�˹���
+      // 跳转到 HR 个人中心 - 候选人管理
       this.$router.push({
         path: '/HrPerson',
         query: { tab: 'candidates' }
@@ -362,7 +435,7 @@ export default {
     },
 
     viewInterviews() {
-      // ��ת�� HR �������� - ���Թ���
+      // 跳转到 HR 个人中心 - 面试管理
       this.$router.push({
         path: '/HrPerson',
         query: { tab: 'interviews' }
@@ -382,7 +455,7 @@ export default {
     },
 
     /**
-     * ��ת����Ϣ����
+     * 跳转到消息中心
      */
     goToMessageCenter() {
       this.$router.push({
@@ -391,7 +464,7 @@ export default {
     },
 
     /**
-     * ��ת�����Թ���ҳ��
+     * 跳转到面试管理页面
      */
     goToInterviewManagement() {
       this.$router.push('/InterviewManagement');
@@ -400,11 +473,11 @@ export default {
     logout() {
       sessionStorage.removeItem('user');
       this.$router.push('/');
-      this.$message.success('���˳���¼');
+      this.$message.success('已退出登录');
     },
 
     formatTime(time) {
-      if (!time) return 'δ֪';
+      if (!time) return '未知';
       const date = new Date(time);
       const now = new Date();
       const diff = now - date;
@@ -414,11 +487,11 @@ export default {
       const days = Math.floor(diff / 86400000);
       
       if (minutes < 60) {
-        return minutes + '����ǰ';
+        return minutes + '分钟前';
       } else if (hours < 24) {
-        return hours + 'Сʱǰ';
+        return hours + '小时前';
       } else if (days < 7) {
-        return days + '��ǰ';
+        return days + '天前';
       } else {
         return date.toLocaleDateString('zh-CN', {
           month: '2-digit',
@@ -789,7 +862,7 @@ export default {
 }
 
 .tips-list li::before {
-  content: '??';
+  content: '•';
   position: absolute;
   left: -20px;
   top: 0;

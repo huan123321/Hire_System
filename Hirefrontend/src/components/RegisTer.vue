@@ -256,7 +256,7 @@ export default {
           )
             .then(res => {
               this.loading = false;
-              if (res.data.success) {
+              if (res.data.code === 200) {
                 this.$message.success("注册成功！");
                 // 注册成功后跳转到登录页面
                 this.$router.replace('/');
@@ -287,40 +287,39 @@ export default {
 
 <style scoped >
 .wrapper {
-  /*渐变的背景色*/
-  /*height: 100vh;
-  background-image: linear-gradient(to bottom right, #FC466B, #3F5EF8);
-  overflow: hidden;*/
-  /*背景图*/
-  background: url("../assets/e44dc62f-007d-47b0-b1ae-94ce94105790.png");
+  /* 真实写字楼照片背景 + 深色遮罩（保证白色注册卡片可读性） */
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.30), rgba(0, 0, 0, 0.42)),
+    url("../assets/sean-pollock-PhYq704ffdA-unsplash.jpg") center / cover no-repeat;
   width: 100%;
   height: 100%;
   position: fixed;
-  background-size: 100% 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 #building {
   /*设置透明度，0为完全透明，1为不透明*/
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .loginBody {
   width: 100%;
   height: 100%;
-  background-color: #B3C0D1;
+  background-color: transparent;
 }
 .loginDiv {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-top: -200px;
+  margin-top: -250px;
   margin-left: -250px;
   width: 480px;
   height: 500px;
   background: #fff;
-  border-radius: 5%;
-
-
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
 }
 .login-title {
 

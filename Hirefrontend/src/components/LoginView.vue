@@ -10,7 +10,7 @@
 
       <div class="login-content">
 
-        <h1 class="login-title" style="color:darkred">欢迎来到招聘系统! 请登录</h1>
+        <h1 class="login-title" style="color:#00C2A1">欢迎来到招聘系统! 请登录</h1>
 
         <div class="demo-image">
 
@@ -171,17 +171,21 @@ export default {
             loginData
           ).then(res=>res.data).then(res=>{
             this.loading = false;
-            if(res.success){ //
-              //存储
-              sessionStorage.setItem('user',JSON.stringify(res.user)); // 修改存储内容
+            if(res.code === 200){ //
+              // 后端返回结构：res.data = { user, token }
+              const loginData = res.data || {};
+              const user = loginData.user;
+              // 存储用户对象（供路由守卫/页面读取）
+              sessionStorage.setItem('user', JSON.stringify(user));
+              // 存储登录 token（后续请求由 request.js 自动附加 Authorization 头）
+              if (loginData.token) {
+                sessionStorage.setItem('token', loginData.token);
+              }
               // 根据后端返回的角色信息进行跳转
               if (res.redirect) {
                 this.$router.push(res.redirect);
               } else {
                 // 默认跳转到主页
-
-                  const userStr = sessionStorage.getItem('user')
-                  const user = userStr ? JSON.parse(userStr) : null
 
                   if (user && user.role === 1) {  // HR角色
                     this.$router.push('/HrHomePage')
@@ -219,27 +223,27 @@ export default {
 
 <style scoped >
 .wrapper {
-  /*渐变的背景色*/
-  /*height: 100vh;
-  background-image: linear-gradient(to bottom right, #FC466B, #3F5EF8);
-  overflow: hidden;*/
-  /*背景图*/
-  background: url("../assets/e44dc62f-007d-47b0-b1ae-94ce94105790.png");
+  /* 真实写字楼照片背景 + 深色遮罩（保证白色登录卡片可读性） */
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.30), rgba(0, 0, 0, 0.42)),
+    url("../assets/sean-pollock-PhYq704ffdA-unsplash.jpg") center / cover no-repeat;
   width: 100%;
   height: 100%;
   position: fixed;
-  background-size: 100% 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 #building {
   /*设置透明度，0为完全透明，1为不透明*/
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .loginBody {
   width: 100%;
   height: 100%;
-  background-color: #B3C0D1;
+  background-color: transparent;
 }
 .loginDiv {
   position: absolute;
@@ -250,9 +254,8 @@ export default {
   width: 460px;
   height: 360px;
   background: #fff;
-  border-radius: 5%;
-
-
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
 }
 .login-title {
 

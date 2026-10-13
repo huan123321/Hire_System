@@ -158,6 +158,13 @@ export default {
           // 解析基本信息
           if (resume.basicInfo) {
             this.basicInfo = JSON.parse(resume.basicInfo);
+            // 把所在地数组/字符串统一成「省 市」友好展示
+            if (this.basicInfo && this.basicInfo.location) {
+              const loc = Array.isArray(this.basicInfo.location)
+                  ? this.basicInfo.location
+                  : String(this.basicInfo.location).split(',');
+              this.basicInfo.location = loc.map(s => s && s.trim()).filter(Boolean).join(' ');
+            }
           }
         } else {
           this.$message.warning('候选人尚未创建简历');

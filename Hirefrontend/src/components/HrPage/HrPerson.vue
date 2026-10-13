@@ -8,12 +8,13 @@
       <div class="profile-overview">
         <div class="profile-header">
           <div class="avatar-container">
-            <el-avatar :size="100" :src="userInfo.avatar" class="user-avatar">
+            <el-avatar :size="100" :src="displayAvatar" class="user-avatar">
               <i class="fas fa-user" v-if="!userInfo.avatar"></i>
             </el-avatar>
             <el-upload
                 class="avatar-uploader"
-                action="/api/upload"
+                :action="$apiBaseUrl + '/upload/avatar'"
+                :headers="avatarUploadHeaders()"
                 :show-file-list="false"
                 :on-success="handleAvatarSuccess"
                 :before-upload="beforeAvatarUpload">
@@ -21,8 +22,8 @@
             </el-upload>
           </div>
           <div class="profile-info">
-            <h1 class="username">{{ userInfo.name }}</h1>
-            <p class="user-title">{{ userInfo.title || 'HR 管理员' }}</p>
+            <h1 class="username">{{ displayName }}</h1>
+            <p class="user-title" v-if="userInfo.username && userInfo.username !== displayName">@{{ userInfo.username }}</p>
             <div class="profile-meta">
               <span><i class="fas fa-envelope"></i> {{ userInfo.email }}</span>
               <span><i class="fas fa-phone"></i> {{ userInfo.phone || '未绑定手机' }}</span>
@@ -264,7 +265,7 @@
               <el-table-column prop="applyDate" label="申请时间" width="150"></el-table-column>
               <el-table-column prop="status" label="状态" width="120">
                 <template slot-scope="{row}">
-                  <el-tag :type="getCandidateStatusType(row.status)">
+                  <el-tag :type="getCandidateStatusType(row.statusValue)">
                     {{ row.status }}
                   </el-tag>
                 </template>
@@ -305,7 +306,7 @@
           <el-descriptions-item label="申请职位">{{ selectedCandidate.jobTitle }}</el-descriptions-item>
           <el-descriptions-item label="申请时间">{{ selectedCandidate.applyDate }}</el-descriptions-item>
           <el-descriptions-item label="当前状态">
-            <el-tag :type="getCandidateStatusType(selectedCandidate.status)">
+            <el-tag :type="getCandidateStatusType(selectedCandidate.statusValue)">
               {{ selectedCandidate.status }}
             </el-tag>
           </el-descriptions-item>
@@ -467,6 +468,7 @@
 
 <script>
 import AppHeader from "@/components/common/AppHeader.vue";
+import { defaultAvatar } from '@/utils/avatar';
 
 export default {
   name: 'HrPerson',
@@ -601,6 +603,16 @@ export default {
       immediate: true
     }
   },
+  computed: {
+    // 显示名称：优先昵称/名称，最后才是用户名
+    displayName() {
+      return this.userInfo.title || this.userInfo.name || this.userInfo.nickname || this.userInfo.username || 'HR';
+    },
+    // 无自定义头像时按性别显示默认头像
+    displayAvatar() {
+      return this.userInfo.avatar || defaultAvatar(this.userInfo.gender);
+    }
+  },
   methods: {
     // 加载用户信息
     async loadUserInfo() {
@@ -623,8 +635,10 @@ export default {
           const userData = response.data.data;
           this.userInfo = {
             id: userData.id,
-            name: userData.realName || userData.username,
+            username: userData.username || '',
+            name: userData.realName || userData.nickname || userData.username,
             avatar: userData.avatar || '',
+            gender: userData.gender,
             title: userData.nickname || '',
             email: userData.email || '',
             phone: userData.phone || '',
@@ -822,7 +836,7 @@ export default {
                 userId: item.userId,
                 jobId: item.jobId,
                 jobTitle: jobTitle, // 添加职位标题
-                applicantName: item.realName || item.username || '未知用户',
+                applicantName: item.realName || item.nickname || item.username || '未知用户',
                 username: item.username || '',
                 applyDate: item.applyTime ? new Date(item.applyTime).toLocaleDateString() : '',
                 statusValue: item.status,
@@ -832,6 +846,8 @@ export default {
               };
             });
             this.filteredCandidates = this.candidates;
+            // 重新应用筛选（保持当前职位/状态筛选条件）
+            this.filterCandidates();
             console.log('处理后的候选人数据:', this.candidates);
             this.refreshCandidateStats();
           } else {
@@ -882,7 +898,8 @@ export default {
     filterCandidates() {
       this.filteredCandidates = this.candidates.filter(c => {
         if (this.candidateFilter.job && c.jobId !== this.candidateFilter.job) return false;
-        if (this.candidateFilter.status && c.status !== this.candidateFilter.status) return false;
+        // statusValue 为英文原始值，与筛选项（new/viewed/interview/hired/rejected）匹配
+        if (this.candidateFilter.status && c.statusValue !== this.candidateFilter.status) return false;
         return true;
       });
     },
@@ -1105,6 +1122,8 @@ export default {
             candidate.statusValue = nextStatus;
             candidate.status = this.mapApplicationStatus(nextStatus);
             this.refreshCandidateStats();
+            // 重新应用筛选（录用/拒绝后状态筛选下列表同步更新）
+            this.filterCandidates();
             this.$message.success(`状态已更新为：${candidate.status}`);
             resolve();
           } else {
@@ -1147,6 +1166,8 @@ export default {
             candidate.statusValue = nextStatus;
             candidate.status = this.mapApplicationStatus(nextStatus);
             this.refreshCandidateStats();
+            // 重新应用筛选（录用/拒绝后状态筛选下列表同步更新）
+            this.filterCandidates();
             this.$message.success(`状态已更新为：${candidate.status}`);
             resolve();
           } else {
@@ -1188,9 +1209,44 @@ export default {
     },
     
     // 头像上传
-    handleAvatarSuccess(res) {
-      this.userInfo.avatar = res.url;
-      this.$message.success('头像上传成功');
+    avatarUploadHeaders() {
+      // 上传接口需要登录 token（后端 /upload/** 受鉴权保护）
+      const token = sessionStorage.getItem('token');
+      return token ? { Authorization: 'Bearer ' + token } : {};
+    },
+    async handleAvatarSuccess(res) {
+      // 后端返回 { code:200, data: "/uploads/avatars/xxx.jpg" }
+      if (res && res.code === 200 && res.data) {
+        const avatarUrl = this.$apiBaseUrl + res.data;
+        this.userInfo.avatar = avatarUrl;
+        // 构造请求体并规范化字段（location 可能是数组、gender 可能是 male/female 字符串）
+        const payload = { ...this.userInfo, avatar: avatarUrl };
+        if (Array.isArray(payload.location)) {
+          payload.location = payload.location.join(',');
+        }
+        if (payload.gender === 'male') {
+          payload.gender = true;
+        } else if (payload.gender === 'female') {
+          payload.gender = false;
+        } else {
+          payload.gender = null;
+        }
+        // 持久化到用户资料（PUT /user/{id}），并同步 sessionStorage
+        try {
+          await this.$axios.put(this.$apiBaseUrl + '/user/' + this.userInfo.id, payload);
+          const userStr = sessionStorage.getItem('user');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            user.avatar = avatarUrl;
+            sessionStorage.setItem('user', JSON.stringify(user));
+          }
+          this.$message.success('头像更新成功');
+        } catch (e) {
+          this.$message.error('头像已上传但保存失败，请重试');
+        }
+      } else {
+        this.$message.error((res && res.message) || '头像上传失败');
+      }
     },
     beforeAvatarUpload(file) {
       const isImage = file.type === 'image/jpeg' || file.type === 'image/png';

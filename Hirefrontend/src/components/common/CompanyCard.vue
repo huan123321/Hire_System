@@ -2,8 +2,7 @@
   <div class="company-card" @click="handleClick">
     <div class="company-header">
       <div class="company-logo">
-        <i class="fas fa-building" v-if="!company.logo"></i>
-        <img :src="company.logo" :alt="company.name" v-if="company.logo" />
+        <img :src="companyLogo(company)" :alt="company.name" />
       </div>
       <div class="company-info">
         <div class="company-name">{{ company.name }}</div>
@@ -57,6 +56,8 @@
 </template>
 
 <script>
+import { getCompanyLogo } from '@/utils/companyLogo';
+
 export default {
   name: 'CompanyCard',
   props: {
@@ -74,6 +75,10 @@ export default {
     }
   },
   methods: {
+    // 公司头像：优先 logo，否则按行业/名称生成默认头像
+    companyLogo(company) {
+      return getCompanyLogo(company);
+    },
     handleClick() {
       this.$emit('click', this.company);
     },

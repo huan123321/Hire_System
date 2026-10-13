@@ -240,11 +240,31 @@ router.beforeEach((to, from, next) => {
         }
         return
     }
+
+    // 6.5.1. HR 访问 /ComPany 时重定向到 /HrCompany
+    if (to.path === '/ComPany' && user.role === ROLES.HR) {
+        if (from.path !== '/HrCompany') {
+            next({ path: '/HrCompany', meta: { isRedirecting: true } })
+        } else {
+            next()
+        }
+        return
+    }
     
     // 6.6. 求职者访问 /HrPosition 时重定向到 /Position
     if (to.path === '/HrPosition' && user.role === ROLES.JOB_SEEKER) {
         if (from.path !== '/Position') {
             next({ path: '/Position', meta: { isRedirecting: true } })
+        } else {
+            next()
+        }
+        return
+    }
+
+    // 6.6.1. 求职者访问 /HrCompany 时重定向到 /ComPany
+    if (to.path === '/HrCompany' && user.role === ROLES.JOB_SEEKER) {
+        if (from.path !== '/ComPany') {
+            next({ path: '/ComPany', meta: { isRedirecting: true } })
         } else {
             next()
         }

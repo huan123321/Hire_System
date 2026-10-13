@@ -31,8 +31,7 @@
     
     <div class="company-info">
       <div class="company-logo">
-        <i class="fas fa-building" v-if="!job.companyLogo"></i>
-        <img :src="job.companyLogo" :alt="job.companyName" v-if="job.companyLogo" />
+        <img :src="companyLogo(job)" :alt="job.companyName" />
       </div>
       <div class="company-detail">
         <div class="company-name">{{ job.companyName }}</div>
@@ -52,6 +51,8 @@
 </template>
 
 <script>
+import { getCompanyLogo } from '@/utils/companyLogo';
+
 export default {
   name: 'JobCard',
   props: {
@@ -73,6 +74,14 @@ export default {
     }
   },
   methods: {
+    // 职位所属公司头像：优先 logo，否则按公司名/行业生成默认头像
+    companyLogo(job) {
+      return getCompanyLogo({
+        logo: job.companyLogo,
+        name: job.companyName,
+        industry: job.industry
+      });
+    },
     handleClick() {
       this.$emit('click', this.job);
     },

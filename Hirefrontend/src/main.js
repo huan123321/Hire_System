@@ -32,6 +32,22 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// A11y 修复：清除 el-form-item 生成的无效 label for 属性（Element UI 的 for=prop 但控件无对应 id）
+const fixLabelFor = () => {
+  document.querySelectorAll('label[for]').forEach((label) => {
+    const forValue = label.getAttribute('for');
+    if (forValue && !document.getElementById(forValue)) {
+      label.removeAttribute('for');
+    }
+  });
+};
+let labelForTimer = null;
+new MutationObserver(() => {
+  clearTimeout(labelForTimer);
+  labelForTimer = setTimeout(fixLabelFor, 100);
+}).observe(document.body, { childList: true, subtree: true });
+fixLabelFor();
+
 new Vue({
   render: h => h(App),
   router

@@ -8,14 +8,16 @@
         </div>
         <div class="nav-menu">
           <el-button type="text" @click="goToHome" :class="{ 'nav-active': isActive('/HomePage') || isActive('/HrHomePage') }">首页</el-button>
-          <el-button type="text" @click="goToPosition" :class="{ 'nav-active': isActive('/Position') }">职位</el-button>
-          <el-button type="text" @click="goToCompany" :class="{ 'nav-active': isActive('/ComPany') }">公司</el-button>
+          <el-button type="text" @click="goToPosition" :class="{ 'nav-active': isActive('/Position') || isActive('/HrPosition') }">职位</el-button>
+          <el-button type="text" @click="goToCompany" :class="{ 'nav-active': isActive('/ComPany') || isActive('/HrCompany') }">公司</el-button>
           <el-button type="text" @click="goToInterviewManagement" :class="{ 'nav-active': isActive('/InterviewManagement') }">面试安排</el-button>
           <el-button type="text" @click="goToMessageCenter" :class="{ 'nav-active': isActive('/MessageCenter') }">消息</el-button>
         </div>
         <div class="user-area">
           <el-button type="text" class="user-link" @click="goToPerson">
-            <i class="el-icon-user"></i>
+            <el-avatar :size="28" :src="displayAvatar" class="header-avatar">
+              <i class="el-icon-user"></i>
+            </el-avatar>
             {{ nickname }}
           </el-button>
           <el-button type="text" class="logout-link" @click="handleLogout">退出登录</el-button>
@@ -26,11 +28,15 @@
 </template>
 
 <script>
+import { defaultAvatar } from '@/utils/avatar';
+
 export default {
   name: 'AppHeader',
   data() {
     return {
-      nickname: ''
+      nickname: '',
+      avatar: '',
+      gender: ''
     };
   },
   created() {
@@ -38,10 +44,18 @@ export default {
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        this.nickname = user.nickname || user.username || '用户';
+        this.nickname = user.nickname || user.realName || user.username || '用户';
+        this.avatar = user.avatar || '';
+        this.gender = user.gender;
       } catch (e) {
         this.nickname = '用户';
       }
+    }
+  },
+  computed: {
+    // 无自定义头像时按性别显示默认头像
+    displayAvatar() {
+      return this.avatar || defaultAvatar(this.gender);
     }
   },
   methods: {
@@ -57,13 +71,21 @@ export default {
       }
     },
     goToPosition() {
-      if (this.$route.path !== '/Position') {
-        this.$router.push('/Position');
+      // HR 进职位管理页，求职者进职位列表页
+      const userStr = sessionStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      const target = (user && user.role === 1) ? '/HrPosition' : '/Position';
+      if (this.$route.path !== target) {
+        this.$router.push(target);
       }
     },
     goToCompany() {
-      if (this.$route.path !== '/ComPany') {
-        this.$router.push('/ComPany');
+      // HR 进公司管理页，求职者进公司列表页
+      const userStr = sessionStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      const target = (user && user.role === 1) ? '/HrCompany' : '/ComPany';
+      if (this.$route.path !== target) {
+        this.$router.push(target);
       }
     },
     goToInterviewManagement() {
@@ -164,6 +186,10 @@ export default {
       display: flex;
       align-items: center;
       gap: 4px;
+    }
+    .header-avatar {
+      border: 2px solid #00C2A1;
+      flex-shrink: 0;
     }
     .logout-link { color: #999; }
     .logout-link:hover { color: #FF5252; }

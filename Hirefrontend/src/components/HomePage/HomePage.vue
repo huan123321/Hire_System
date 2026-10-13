@@ -104,11 +104,16 @@
 
 <script>
 import AppHeader from '@/components/common/AppHeader.vue'
+import { promptProfileCompletion } from '@/utils/profileTip'
 
 export default {
   name: 'HomepageE',
   components: {
     AppHeader
+  },
+  mounted() {
+    // 新用户注册后首次进入首页：提示先完善个人资料
+    promptProfileCompletion(this);
   },
   data() {
     return {

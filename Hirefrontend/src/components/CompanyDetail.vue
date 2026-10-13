@@ -16,8 +16,7 @@
           <div class="company-info-card">
             <div class="company-header">
               <div class="company-logo">
-                <i class="fas fa-building" v-if="!company.logo"></i>
-                <img :src="company.logo" :alt="company.name" v-if="company.logo">
+                <img :src="companyLogo(company)" :alt="company.name">
               </div>
               <div class="company-name-section">
                 <h1 class="company-name">{{ company.name }}</h1>
@@ -112,19 +111,22 @@
       </div>
     </div>
 
-    <!-- 聊天对话框 -->
+    <!-- 聊天对话框（与公司 HR 用户直接沟通） -->
     <el-dialog 
       title="与HR沟通" 
       :visible.sync="chatVisible"
       width="650px"
       :close-on-click-modal="false">
       <ChatBox 
-        v-if="chatVisible"
-        :partnerId="companyId"
-        partnerType="company"
-        :partnerName="company.name"
+        v-if="chatVisible && chatHr"
+        :partnerId="chatHr.id"
+        partnerType="user"
+        :partnerName="chatHr.name"
         @close="chatVisible = false"
       />
+      <div v-else-if="chatVisible && !chatHr" style="text-align:center;padding:40px 0;color:#909399;">
+        正在加载 HR 信息...
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -133,6 +135,7 @@
 import AppHeader from '@/components/common/AppHeader.vue'
 import ChatBox from '@/components/ChatBox.vue';
 import chatWebSocket from '@/utils/websocket';
+import { getCompanyLogo } from '@/utils/companyLogo';
 
 export default {
   name: 'CompanyDetail',
@@ -149,6 +152,7 @@ export default {
       isFollowed: false,
       currentUser: null,
       chatVisible: false,
+      chatHr: null, // 该公司 HR 用户（沟通对象）
       viewCount: 0 // 公司浏览量
     }
   },
@@ -190,6 +194,10 @@ export default {
     chatWebSocket.disconnect();
   },
   methods: {
+    // 公司头像：优先 logo，否则按行业/名称生成默认头像
+    companyLogo(company) {
+      return getCompanyLogo(company);
+    },
     async loadCompanyDetail() {
       try {
         this.loading = true;
@@ -265,9 +273,9 @@ export default {
     },
 
     /**
-     * 打开聊天窗口
+     * 打开聊天窗口（先获取公司的 HR 用户，与 HR 用户直接沟通）
      */
-    openChat() {
+    async openChat() {
       if (!this.currentUser) {
         this.$message.warning('请先登录');
         this.$router.push('/');
@@ -280,7 +288,23 @@ export default {
         return;
       }
       
-      this.chatVisible = true;
+      try {
+        this.chatHr = null;
+        const res = await this.$axios.get(this.$apiBaseUrl + '/company/' + this.companyId + '/hr');
+        if (res.data.code === 200 && res.data.data) {
+          const hr = res.data.data;
+          this.chatHr = {
+            id: hr.id,
+            name: hr.realName || hr.nickname || hr.username || 'HR'
+          };
+          this.chatVisible = true;
+        } else {
+          this.$message.warning(res.data.message || '该公司暂无在线 HR');
+        }
+      } catch (e) {
+        console.error('获取 HR 信息失败:', e);
+        this.$message.error('获取 HR 信息失败，请稍后重试');
+      }
     },
 
     followCompany() {
@@ -413,13 +437,14 @@ export default {
       }
       
       // 确认申请
+      let loading = null;
       this.$confirm('确定要申请这个职位吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async () => {
         try {
-          const loading = this.$loading({
+          loading = this.$loading({
             lock: true,
             text: '正在提交申请...',
             spinner: 'el-icon-loading',
@@ -439,6 +464,7 @@ export default {
           );
           
           loading.close();
+          loading = null;
           
           if (response.data.code === 200) {
             this.$message.success('申请成功！HR 将尽快查看您的简历');
@@ -446,6 +472,11 @@ export default {
             this.$message.error(response.data.msg || '申请失败，请稍后重试');
           }
         } catch (error) {
+          // 关闭加载提示（防止请求失败后一直卡在加载层）
+          if (loading) {
+            loading.close();
+            loading = null;
+          }
           console.error('申请职位失败:', error);
           this.$message.error('申请失败，请稍后重试');
         }

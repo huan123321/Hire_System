@@ -18,7 +18,8 @@
             class="conversation-item"
             @click="openChat(conv)">
             <div class="conversation-avatar">
-              <i class="fas fa-user"></i>
+              <img v-if="getPartnerAvatar(conv)" :src="getPartnerAvatar(conv)" class="partner-avatar" alt="头像" />
+              <i v-else class="fas fa-user"></i>
               <el-badge 
                 v-if="conv.unreadCount > 0" 
                 :value="conv.unreadCount" 
@@ -46,6 +47,7 @@
 
 <script>
 import AppHeader from '@/components/common/AppHeader.vue'
+import { defaultAvatar } from '@/utils/avatar'
 
 export default {
   name: 'MessageCenter',
@@ -56,7 +58,9 @@ export default {
     return {
       loading: false,
       currentUser: null,
-      conversations: []
+      conversations: [],
+      // partnerId -> 头像 URL 映射（会话列表显示对方头像）
+      avatarMap: {}
     };
   },
   created() {
@@ -68,17 +72,34 @@ export default {
     
     // 加载会话列表
     this.loadConversations();
+
+    // 定时刷新会话列表（新消息/简历投递实时可见）
+    this.refreshTimer = setInterval(() => {
+      this.loadConversations(true);
+    }, 10000);
+  },
+  beforeDestroy() {
+    // 清除定时器
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = null;
+    }
   },
   methods: {
     /**
      * 加载会话列表
+     * @param {boolean} silent 静默刷新（不显示 loading、不弹错误）
      */
-    async loadConversations() {
+    async loadConversations(silent) {
       try {
-        this.loading = true;
+        if (!silent) {
+          this.loading = true;
+        }
         
         if (!this.currentUser) {
-          this.$message.error('请先登录');
+          if (!silent) {
+            this.$message.error('请先登录');
+          }
           return;
         }
 
@@ -94,18 +115,58 @@ export default {
         
         if (response.data.code === 200) {
           this.conversations = response.data.data || [];
-          console.log('会话列表加载成功:', this.conversations);
+          // 加载会话对方的头像
+          this.loadPartnerAvatars();
         } else {
-          this.$message.error(response.data.msg || '加载会话列表失败');
+          if (!silent) {
+            this.$message.error(response.data.msg || '加载会话列表失败');
+          }
           this.conversations = [];
         }
       } catch (error) {
         console.error('加载会话列表失败:', error);
-        this.$message.error('加载会话列表失败，请稍后重试');
+        if (!silent) {
+          this.$message.error('加载会话列表失败，请稍后重试');
+        }
         this.conversations = [];
       } finally {
         this.loading = false;
       }
+    },
+
+    /**
+     * 加载会话对方的头像（按 partnerId 查询用户信息）
+     */
+    async loadPartnerAvatars() {
+      const partnerIds = [...new Set(
+        this.conversations
+          .map(c => c.partnerId)
+          .filter(id => id != null && !this.avatarMap[String(id)])
+      )];
+      
+      await Promise.all(partnerIds.map(async (partnerId) => {
+        try {
+          const res = await this.$axios.get(this.$apiBaseUrl + '/user/' + partnerId);
+          if (res.data.code === 200 && res.data.data) {
+            this.$set(this.avatarMap, String(partnerId), {
+              avatar: res.data.data.avatar || '',
+              gender: res.data.data.gender
+            });
+          } else {
+            this.$set(this.avatarMap, String(partnerId), { avatar: '', gender: undefined });
+          }
+        } catch (e) {
+          this.$set(this.avatarMap, String(partnerId), { avatar: '', gender: undefined });
+        }
+      }));
+    },
+
+    /**
+     * 获取会话对方头像（无自定义头像时按性别显示默认头像）
+     */
+    getPartnerAvatar(conv) {
+      const info = this.avatarMap[String(conv.partnerId)];
+      return (info && info.avatar) || defaultAvatar(info && info.gender);
     },
 
     /**
@@ -213,6 +274,14 @@ export default {
   font-size: 24px;
   flex-shrink: 0;
   margin-right: 15px;
+  overflow: hidden;
+}
+
+.partner-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .unread-badge {

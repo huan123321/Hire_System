@@ -11,6 +11,12 @@ const request = axios.create({
 
 request.interceptors.request.use(
   config => {
+    // 携带登录 token（登录成功后由 LoginView 写入 sessionStorage）
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = 'Bearer ' + token;
+    }
+    // 兼容旧代码：仍附带 X-User-Id（后端以 token 为准）
     const userStr = sessionStorage.getItem('user');
     if (userStr) {
       try {
@@ -43,6 +49,7 @@ request.interceptors.response.use(
         case 401:
           Message.error('登录已过期，请重新登录');
           sessionStorage.removeItem('user');
+          sessionStorage.removeItem('token');
           window.location.href = '/';
           break;
         case 403:
